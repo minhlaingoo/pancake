@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     # Default Pages
     Route::get('/dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
     Route::get('/profile', \App\Livewire\Profile\Index::class)->name('user-profile');
+    Route::get('/user-setting', \App\Livewire\UserSetting::class)->name('user-setting');
     Route::get('/setting', Setting::class)->name('setting');
     Route::get('/broker-setting', BrokerSetting::class)->name('broker-setting');
 

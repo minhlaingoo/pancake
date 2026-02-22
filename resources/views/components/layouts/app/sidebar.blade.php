@@ -5,7 +5,11 @@
 
         <mijnui:sidebar.double>
             <mijnui:sidebar.logo>
-                <img src="/logo.png" alt="Logo" class="w-full mx-auto px-2 my-4" />
+                @php
+                    $logoPath = setting('general')->logoPath ?? null;
+                @endphp
+                <img src="{{ $logoPath ? Storage::url($logoPath) : '/logo.png' }}" alt="Logo"
+                    class="w-full mx-auto px-2 my-4" />
             </mijnui:sidebar.logo>
 
             <mijnui:sidebar.button name="dashboard">
@@ -49,10 +53,24 @@
                         clip-rule="evenodd" />
                 </svg>
 
-
             </mijnui:sidebar.button>
 
-            <mijnui:sidebar.double.footer>
+
+            <mijnui:sidebar.double.footer class="flex flex-col items-center gap-4">
+                <!-- Logout Icon -->
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                    @csrf
+                </form>
+                <button type="button"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                    class="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-red-500 transition-colors focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                    </svg>
+                </button>
+
                 <mijnui:badge color="success" size="xs">v1.0.1</mijnui:badge>
             </mijnui:sidebar.double.footer>
 
@@ -99,6 +117,11 @@
                             App Setting
                         </mijnui:list.item>
                     @endif
+
+                    <mijnui:list.item href="{{ route('user-setting') }}"
+                        active="{{ request()->routeIs('user-setting') }}" wire:navigate>
+                        User Setting
+                    </mijnui:list.item>
 
                     @if (auth()->user()->role->name == 'Administrator')
                         <mijnui:list.item href="{{ route('broker-setting') }}"

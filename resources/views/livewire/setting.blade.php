@@ -1,4 +1,4 @@
-<div class="space-y-4"> 
+<div class="space-y-4">
 
     <div>
         <mijnui:breadcrumbs>
@@ -39,6 +39,12 @@
                                     <div class="mt-1">
                                         <p class="text-green-600 font-semibold">Preview:</p>
                                         <img src="{{ $logo->temporaryUrl() }}"
+                                            class="mx-auto w-32 h-32 object-contain mt-2 rounded" />
+                                    </div>
+                                @elseif($logoPath)
+                                    <div class="mt-1">
+                                        <p class="text-gray-600 font-semibold">Current Logo:</p>
+                                        <img src="{{ Storage::url($logoPath) }}"
                                             class="mx-auto w-32 h-32 object-contain mt-2 rounded" />
                                     </div>
                                 @else

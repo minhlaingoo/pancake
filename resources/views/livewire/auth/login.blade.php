@@ -14,7 +14,10 @@
             {{-- Card Header --}}
             <div class="flex flex-col items-center mb-8">
                 <div class="p-2.5 rounded-2xl bg-primary/5 border border-primary/10 shadow-sm mb-4">
-                    <img src="/logo.png" class="size-12" />
+                    @php
+                        $logoPath = setting('general')->logoPath ?? null;
+                    @endphp
+                    <img src="{{ $logoPath ? Storage::url($logoPath) : '/logo.png' }}" class="size-12" />
                 </div>
                 <h1 class="text-2xl font-bold tracking-tight text-foreground">
                     {{ setting('general')->appName }}
