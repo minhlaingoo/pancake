@@ -1,0 +1,54 @@
+MQTT Command Reference
+Topic Pattern
+adc/controller/{device_id}/{type}/{device}/{action}
+Where:
+{device_id} = Device ID from config (e.g., "adc-001")
+{type} = "command" or "status"
+{device} = Hardware device name
+{action} = Specific command or data type
+Temperature Control (TEC)
+Set Temperature Setpoint
+# Set target temperature in °C (0-50°C)
+mosquitto_pub -t "adc/controller/adc-001/command/tec/setpoint" -m "37.0"
+Enable/Disable TEC
+# Enable TEC control
+mosquitto_pub -t "adc/controller/adc-001/command/tec/enable" -m "1"
+
+# Disable TEC control
+mosquitto_pub -t "adc/controller/adc-001/command/tec/enable" -m "0"
+Monitor Temperature
+# Subscribe to temperature updates (published every 2 seconds)
+mosquitto_sub -t "adc/controller/adc-001/status/tec/temperature" -v
+
+Stirrer Control
+Set Speed
+# Set stirrer speed in RPM (0-1000)
+mosquitto_pub -t "adc/controller/adc-001/command/stirrer/speed" -m "500"
+Stop Stirrer
+mosquitto_pub -t "adc/controller/adc-001/command/stirrer/stop" -m ""
+
+Microvalve Control
+Set Valve State
+# Format: "valve_number,state" where state: 0=closed, 1=open
+mosquitto_pub -t "adc/controller/adc-001/command/microvalve/set" -m "0,1"  # Open valve 0
+mosquitto_pub -t "adc/controller/adc-001/command/microvalve/set" -m "5,0"  # Close valve 5
+Quick Open/Close
+# Open specific valve
+mosquitto_pub -t "adc/controller/adc-001/command/microvalve/open"    -m "3"
+
+# Close specific valve
+mosquitto_pub -t "adc/controller/adc-001/command/microvalve/close" -m "7"
+
+Pump Control
+Initialize Pump
+# Enable and home pump in one command
+mosquitto_pub -t "adc/controller/adc-001/command/pump_0/init" -m ""
+Aspirate Volume
+# Aspirate specified volume in microliters (µL)
+mosquitto_pub -t "adc/controller/adc-001/command/pump_0/aspirate" -m "1500"  # Aspirate 1500 µL
+Dispense Volume
+# Dispense specified volume in microliters (µL)
+mosquitto_pub -t "adc/controller/adc-001/command/pump_0/dispense" -m "750"  # Dispense 750 µL
+Home Pump
+# Return pump to zero position (empty syringe)
+mosquitto_pub -t "adc/controller/adc-001/command/pump_0/home" -m ""
