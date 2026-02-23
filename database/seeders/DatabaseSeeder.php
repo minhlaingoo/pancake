@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
         $this->call(DefaultRolePermissionSeeder::class);
 
         // User::factory()->create();
-        if (!User::where('email', 'pancake@admin.com')->exists()) {
+        if (!User::where('email', 'admin@iprogen.com')->exists()) {
             $user = User::factory()->create([
                 'name' => 'Admin PanCake',
-                'email' => 'pancake@admin.com',
+                'email' => 'admin@iprogen.com',
             ]);
         }
 

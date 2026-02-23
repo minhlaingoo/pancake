@@ -48,29 +48,48 @@
                 </div>
 
                 {{-- Terms & Modal --}}
-                <div class="flex items-start gap-2.5 px-1">
+                <div x-data="{ showModal: false }" class="flex items-center px-1">
                     <mijnui:checkbox wire:model.live="agree" class="mt-0.5" />
                     <div class="text-xs text-muted-foreground leading-normal">
                         I agree to the
-                        <mijnui:modal>
-                            <mijnui:modal.trigger
-                                class="inline font-bold text-foreground cursor-pointer hover:underline">
-                                rules & policy
-                            </mijnui:modal.trigger>
-                            <mijnui:modal.content class="max-w-md">
-                                <mijnui:modal.header title="Rules & Policy">
-                                    <h3 class="text-lg font-bold">Rules & Policy</h3>
-                                </mijnui:modal.header>
-                                <hr>
-                                <mijnui:modal.body class="text-sm text-muted-foreground space-y-3">
-                                    <p>This system is the property of <b>{{ setting('general')->appName }}</b>.
-                                        Unauthorized access is prohibited and may lead to legal action.</p>
-                                    <p>By logging in, you agree to comply with all security protocols and company
-                                        policies.</p>
-                                </mijnui:modal.body>
-                            </mijnui:modal.content>
-                        </mijnui:modal>
-                        of the terminal.
+                        <button type="button" @click="showModal = true"
+                            class="inline font-bold text-primary cursor-pointer hover:underline">
+                            Rules & Regulations
+                        </button>
+                    </div>
+
+                    {{-- Plain Modal --}}
+                    <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        @keydown.escape.window="showModal = false">
+                        {{-- Backdrop --}}
+                        <div x-show="showModal" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0" @click="showModal = false"
+                            class="absolute inset-0 bg-black/50"></div>
+                        {{-- Content --}}
+                        <div x-show="showModal" x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95"
+                            class="relative w-full max-w-md bg-background rounded-xl shadow-xl border border-border overflow-hidden">
+                            <div class="px-6 py-4 flex items-center justify-between">
+                                <h3 class="text-lg font-bold text-primary">Rules & Regulations</h3>
+                                <button type="button" @click="showModal = false"
+                                    class="text-muted-foreground hover:text-foreground transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <hr class="border-border">
+                            <div class="px-6 py-4 text-sm text-muted-foreground space-y-3 max-h-[60vh] overflow-y-auto">
+                                <p>This software is the property of iProgen and is strictly for authorized use only.
+                                    Unauthorized login, access, or any form of operation is strictly prohibited and may
+                                    result in disciplinary and legal action.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -81,17 +100,6 @@
                 </mijnui:button>
             </form>
 
-            {{-- Test Credentials --}}
-            <div class="mt-8 pt-6 border-t border-dashed">
-                <div
-                    class="bg-muted/50 rounded-lg p-3 text-[11px] text-muted-foreground font-medium flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-flask-vial opacity-50"></i>
-                        <span>Test: testing@example.com</span>
-                    </div>
-                    <span class="font-mono bg-background px-1.5 py-0.5 rounded border">testing1234</span>
-                </div>
-            </div>
         </div>
 
     </mijnui:card>
