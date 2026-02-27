@@ -10,7 +10,7 @@
     @if (count($logs))
 
 
-        <mijnui:table wire:poll.1s="checkForUpdate" class="table-fixed">
+        <mijnui:table class="table-fixed">
 
             <mijnui:table.columns>
 

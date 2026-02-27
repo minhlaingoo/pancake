@@ -78,7 +78,7 @@
                     <p class="text-muted-foreground text-sm">No test commands added yet.</p>
                 </div>
             @else
-                <div class="space-y-3">
+                <form wire:submit.prevent="sendTestCommands" class="space-y-3">
                     @foreach($testCommands as $index => $command)
                         <div
                             class="flex items-center gap-2 group relative bg-background p-3 rounded-lg border shadow-sm transition-all hover:border-primary/50">
@@ -94,12 +94,13 @@
                                         <option value="microvalve">Microvalve</option>
                                         <option value="pump">Pump</option>
                                     </select>
+                                    @error("testCommands.{$index}.controller") <span class="text-[10px] text-destructive">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="col-span-4">
                                     <label
                                         class="text-[10px] font-semibold uppercase text-muted-foreground mb-1 block">Action</label>
                                     <select wire:model.live="testCommands.{{ $index }}.action"
-                                        class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                                        class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" required>
                                         <option value="">Select Action...</option>
                                         @if($command['controller'])
                                             @foreach($controllerCommands[$command['controller']] ?? [] as $cmdPath => $defaultType)
@@ -107,6 +108,7 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                    @error("testCommands.{$index}.action") <span class="text-[10px] text-destructive">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="col-span-4 flex items-end gap-2">
                                     <div class="flex-1">
@@ -117,17 +119,28 @@
                                         @if(($command['type'] ?? 'string') === 'bool')
                                             <div class="flex items-center h-9">
                                                 <input type="checkbox" wire:model="testCommands.{{ $index }}.value"
-                                                    class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
+                                                    class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                                    required />
                                                 <span class="ml-2 text-xs text-muted-foreground">Enabled</span>
                                             </div>
+                                        @elseif(($command['type'] ?? 'string') === 'valve_select')
+                                            <select wire:model="testCommands.{{ $index }}.value"
+                                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                                required>
+                                                <option value="">Select Valve...</option>
+                                                @foreach(range(1, 7) as $valve)
+                                                    <option value="{{ $valve }}">Valve {{ $valve }}</option>
+                                                @endforeach
+                                            </select>
                                         @elseif(in_array(($command['type'] ?? 'string'), ['int', 'float']))
                                             <input type="number" wire:model="testCommands.{{ $index }}.value"
                                                 step="{{ ($command['type'] ?? 'string') === 'float' ? '0.01' : '1' }}"
-                                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors" />
+                                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors" required />
                                         @else
                                             <input type="text" wire:model="testCommands.{{ $index }}.value" placeholder="Payload"
-                                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors" />
+                                                class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors" required />
                                         @endif
+                                        @error("testCommands.{$index}.value") <span class="text-[10px] text-destructive">{{ $message }}</span> @enderror
                                     </div>
                                     <button wire:click="removeTestCommand({{ $index }})"
                                         class="h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors rounded-md hover:bg-destructive/10">
@@ -139,12 +152,12 @@
                     @endforeach
 
                     <div class="pt-4 flex justify-end">
-                        <mijnui:button wire:click="sendTestCommands" color="primary" class="shadow-lg shadow-primary/20">
+                        <mijnui:button type="submit" color="primary" class="shadow-lg shadow-primary/20">
                             <i class="fas fa-paper-plane mr-2"></i> Fire Commands
                         </mijnui:button>
                     </div>
-                </div>
-            @endif
+                </form>
+@endif
         </mijnui:card.content>
     </mijnui:card>
 

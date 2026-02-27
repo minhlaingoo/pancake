@@ -20,19 +20,11 @@ class Log extends LivewireComponent
         $this->device = Device::query()->findOrFail($id);
     }
 
-    #[On('echo:mqtt.1,MqttMessageReceived')]
-    public function checkForUpdate()
-    {
-        if (Cache::get('device_needs_refresh_' . $this->device->id)) {
-            $this->refreshDevice();
-            Cache::forget('device_needs_refresh_' . $this->device->id);
-        }
-    }
-
+    #[On('echo:device.{device.id},TelemetryUpdated')]
     public function refreshDevice()
     {
-        // You can reload data or just:
-        $this->emitSelf('$refresh');
+        // Livewire refreshes automatically on event, but we can be explicit
+        $this->dispatch('$refresh');
     }
 
     public function render()

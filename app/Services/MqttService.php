@@ -3,7 +3,10 @@
 namespace App\Services;
 
 use App\Events\MqttMessageReceived;
+use App\Events\TelemetryUpdated;
 use App\Models\Device;
+use App\Models\DeviceComponent;
+use App\Models\DeviceComponentLog;
 use App\Models\MqttMessage;
 use App\Models\Setting;
 use PhpMqtt\Client\MqttClient;
@@ -287,14 +290,14 @@ class MqttService
                 $this->connectToMQTT();
             }
 
-
+            // Register subscriptions once
             foreach ($topics as $topic) {
                 $topic_name = $topic[0];
                 $qos = $topic[1];
 
                 $this->mqttClient->subscribe($topic_name, function ($topic, $message, $retained) {
-                    MqttMessageReceived::dispatch($topic, $message);
                     Log::info("Message received on {$topic}: {$message}");
+                    $this->handleIncomingMessage($topic, $message);
                 }, $qos);
             }
 
@@ -305,10 +308,14 @@ class MqttService
                         $this->isConnected = false;
                         $this->connectToMQTT();
 
-                        // Resubscribe to topics after reconnection
+                        // Resubscribe happens automatically if the client is clean_session=false
+                        // but since we might use clean_session=true, we need to re-subscribe.
+                        // However, we should be careful NOT to accumulate callbacks if the library doesn't handle it.
+                        // PhpMqtt/Client subscribe() replaces the callback for the same topic.
                         foreach ($topics as $topic) {
                             $this->mqttClient->subscribe($topic[0], function ($topic, $message, $retained) {
-                                MqttMessageReceived::dispatch($topic, $message);
+                                Log::info("Message received on {$topic}: {$message}");
+                                $this->handleIncomingMessage($topic, $message);
                             }, $topic[1]);
                         }
                     }
@@ -316,7 +323,9 @@ class MqttService
                     $this->mqttClient->loop(true);
                     usleep(100000); // Sleep for 100ms
                 } catch (Exception $e) {
+                    Log::error('Error in MQTT loop: ' . $e->getMessage());
                     $this->isConnected = false;
+                    usleep(1000000); // Wait before retry
                 }
             }
         } catch (Exception $e) {
@@ -402,6 +411,101 @@ class MqttService
             $this->isConnected = true;
         } catch (Exception $e) {
             Log::error("Reconnection failed: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Parse incoming MQTT message and dispatch TelemetryUpdated event.
+     */
+    public function handleIncomingMessage(string $topic, string $message): void
+    {
+        if (empty($message)) {
+            return;
+        }
+
+        // Deduplication guard: ignore exact same message on same topic within 1 second
+        $cacheKey = 'mqtt_dedup_' . md5($topic . $message);
+        if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            return;
+        }
+        \Illuminate\Support\Facades\Cache::put($cacheKey, true, 1);
+
+        try {
+            // Log raw message first
+            MqttMessage::create([
+                'topic' => $topic,
+                'message' => ['raw' => $message] // Store as array to satisfy cast
+            ]);
+
+            // Dispatch raw event for non-telemetry listeners
+            MqttMessageReceived::dispatch($topic, $message);
+
+            $data = json_decode($message, true);
+            $component = null;
+            $value = $message;
+            $status = 'online';
+
+            // 1. Try to find component from JSON data
+            if ($data && isset($data['device_component_id'])) {
+                $component = DeviceComponent::find($data['device_component_id']);
+                $value = $data['value'] ?? $message;
+                $status = $data['status'] ?? 'online';
+            }
+
+            // 2. If not found via JSON, try to find via Topic mapping
+            // Topic structure: adc/controller/{model}/status/{component_name}
+            if (!$component) {
+                $parts = explode('/', $topic);
+                $modelName = $parts[2] ?? null;
+                $componentName = $parts[4] ?? null;
+
+                if ($modelName) {
+                    $device = Device::where('model', $modelName)->first();
+                    if ($device) {
+                        if ($componentName) {
+                            $component = DeviceComponent::where('device_id', $device->id)
+                                ->where('name', $componentName)
+                                ->first();
+                        }
+
+                        // Fallback to first component if still not found
+                        if (!$component) {
+                            $component = DeviceComponent::where('device_id', $device->id)->first();
+                        }
+                    }
+                }
+            }
+
+            // 3. Process the found component
+            if ($component) {
+                // Update component last value
+                $component->update([
+                    'last_value' => (string) $value,
+                    'status' => $status,
+                ]);
+
+                // Log to DeviceComponentLog if enabled in settings
+                if ($this->broker_setting) {
+                    $broker_value = json_decode($this->broker_setting->value);
+                    if ($broker_value && ($broker_value->enable_log ?? false)) {
+                        DeviceComponentLog::create([
+                            'device_component_id' => $component->id,
+                            'device_id' => $component->device_id,
+                            'value' => "{$component->name}: {$value}"
+                        ]);
+                    }
+                }
+
+                // Dispatch Broadcast Event for UI
+                TelemetryUpdated::dispatch(
+                    $component->id,
+                    $value,
+                    $status,
+                    $component->device_id
+                );
+            }
+        } catch (Exception $e) {
+            Log::error("Error handling incoming MQTT message: " . $e->getMessage());
         }
     }
 }

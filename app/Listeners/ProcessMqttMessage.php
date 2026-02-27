@@ -33,11 +33,12 @@ class ProcessMqttMessage
 
             $data = json_decode($message);
 
-            // Log raw message
-            MqttMessage::create([
-                'topic' => $topic,
-                'message' => $data
-            ]);
+            // If data is not valid JSON, we skip processing but don't crash the worker
+            if (!$data) {
+                return;
+            }
+
+            // Note: MqttMessage creation is handled in MqttService to avoid duplication
 
             // Attempt to find device component if identifier is provided
             $deviceComponent = null;
@@ -47,34 +48,8 @@ class ProcessMqttMessage
             }
 
             if ($deviceComponent) {
-                // Architectural Alignment: State Shadowing
-                $value = $data->value ?? null;
-                $status = $data->status ?? 'online';
-
-                $deviceComponent->update([
-                    'last_value' => $value,
-                    'status' => $status,
-                ]);
-
-                // Architectural Alignment: Real-Time Telemetry Broadcast
-                event(new \App\Events\TelemetryUpdated(
-                    $deviceComponent->id,
-                    $value,
-                    $status,
-                    $deviceComponent->device->id
-                ));
-
-                // Logging if enabled
-                $broker_setting = Setting::where('category', 'broker')->first();
-                $broker_setting_value = $broker_setting ? json_decode($broker_setting->value) : null;
-
-                if ($broker_setting_value && $broker_setting_value->enable_log) {
-                    DeviceComponentLog::create([
-                        'device_component_id' => $deviceComponent->id,
-                        'device_id' => $deviceComponent->device->id,
-                        'value' => "{$deviceComponent->name}'s {$deviceComponent->type} updated to {$value} {$deviceComponent->unit}."
-                    ]);
-                }
+                // Architectural Alignment: State and Telemetry are now handled directly in MqttService
+                // for faster real-time response and reliability.
             }
 
             // --- Protocol Automation: Command Dispatch ---
@@ -119,7 +94,7 @@ class ProcessMqttMessage
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             Log::error("MQTT Processing Error: " . $e->getMessage());
         }
     }

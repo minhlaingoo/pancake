@@ -20,9 +20,8 @@ class Detail extends LivewireComponent
             'stop' => 'string',
         ],
         'microvalve' => [
-            'set' => 'string',
-            'open' => 'int',
-            'close' => 'int',
+            'open' => 'valve_select',
+            'close' => 'valve_select',
         ],
         'pump' => [
             'init' => 'string',
@@ -75,6 +74,16 @@ class Detail extends LivewireComponent
 
     public function sendTestCommands(\App\Services\MqttService $mqttService)
     {
+        $this->validate([
+            'testCommands.*.controller' => 'required',
+            'testCommands.*.action' => 'required',
+            'testCommands.*.value' => 'required',
+        ], [], [
+            'testCommands.*.controller' => 'controller',
+            'testCommands.*.action' => 'action',
+            'testCommands.*.value' => 'value',
+        ]);
+
         if (empty($this->testCommands)) {
             session()->flash('error', 'No commands to send.');
             return;
@@ -104,6 +113,34 @@ class Detail extends LivewireComponent
     public function mount($id)
     {
         $this->device = Device::query()->findOrFail($id);
+
+        // Add default test commands
+        $this->testCommands = [
+            [
+                'controller' => 'tec',
+                'action' => 'setpoint',
+                'value' => '',
+                'type' => 'float'
+            ],
+            [
+                'controller' => 'stirrer',
+                'action' => 'speed',
+                'value' => '',
+                'type' => 'int'
+            ],
+            [
+                'controller' => 'microvalve',
+                'action' => 'open',
+                'value' => '',
+                'type' => 'valve_select'
+            ],
+            [
+                'controller' => 'pump',
+                'action' => 'init',
+                'value' => '',
+                'type' => 'string'
+            ],
+        ];
     }
 
     public function render()
