@@ -10,11 +10,23 @@
 </div>
 
 <div class="mt-4 pt-4 border-t">
-    <div class="flex justify-between items-center mb-2">
+    <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
         <h4 class="font-medium text-sm">Commands</h4>
-        <mijnui:button wire:click="addCommand({{ $index }})" size="sm" variant="outline">
-            + Add Command
-        </mijnui:button>
+        <div class="flex items-center gap-2">
+            <select wire:model="appliedPresetId"
+                class="flex h-8 w-40 rounded-md border border-input bg-background px-3 py-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <option value="">Select Preset...</option>
+                @foreach ($presets as $preset)
+                    <option value="{{ $preset->id }}">{{ $preset->name }}</option>
+                @endforeach
+            </select>
+            <mijnui:button wire:click="applyPreset({{ $index }})" size="sm" variant="secondary">
+                Apply Preset
+            </mijnui:button>
+            <mijnui:button wire:click="addCommand({{ $index }})" size="sm" variant="outline">
+                + Add Command
+            </mijnui:button>
+        </div>
     </div>
 
     <div class="space-y-3">

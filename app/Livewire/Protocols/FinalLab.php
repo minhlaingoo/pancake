@@ -13,6 +13,7 @@ class FinalLab extends Component
     public $protocol_value;
     public $mAb_volume;
     public $phases = [];
+    public $appliedPresetId = '';
 
     public $controllerCommands = [
         'tec' => [
@@ -257,8 +258,32 @@ class FinalLab extends Component
         return to_route('protocols.index');
     }
 
+    public function applyPreset($phaseIndex)
+    {
+        if (empty($this->appliedPresetId))
+            return;
+
+        $preset = \App\Models\Preset::find($this->appliedPresetId);
+        if (!$preset)
+            return;
+
+        if (!isset($this->phases[$phaseIndex]['commands'])) {
+            $this->phases[$phaseIndex]['commands'] = [];
+        }
+
+        // Deep copy commands from preset to avoid reference issues
+        foreach ($preset->commands as $command) {
+            $this->phases[$phaseIndex]['commands'][] = $command;
+        }
+
+        $this->appliedPresetId = ''; // Reset selection
+        session()->flash('message', "Preset '{$preset->name}' applied to phase.");
+    }
+
     public function render()
     {
-        return view('livewire.protocols.final-lab');
+        return view('livewire.protocols.final-lab', [
+            'presets' => \App\Models\Preset::all()
+        ]);
     }
 }

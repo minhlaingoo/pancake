@@ -1,0 +1,50 @@
+,,,,,,
+,Command Batch,Step,Command Topic,Command Payload,Delay (seconds),Notes
+,,,,,,
+,"""Initialization""",,,,,
+,,1,adc/controller/adc-001/command/tec/setpoint,21.0,,"If possible, can we change default state on startup of TEC to setpoint = 21 ˚C? Temperature changes quickly enough to not need 37 on startup…"
+,,2,adc/controller/adc-001/command/stirrer/stop,,,"same as above, can we change this to ""off on startup?"""
+,,3,adc/controller/adc-001/command/rotary_valve_1/init,,5,steps 3-6 are for intializing necessary components
+,,4,adc/controller/adc-001/command/rotary_valve_2/init,,5,
+,,5,adc/controller/adc-001/command/pump_0/init,,10,
+,,6,adc/controller/adc-001/command/pump_1/init,,10,
+,,7,adc/controller/adc-001/command/rotary_valve_2/position,1,2,conjugation buffer port
+,,8,adc/controller/adc-001/command/pump_0/aspirate,400,10,
+,,9,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,10,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""400"" (i.e. eject the contents of the pump)"
+,,11,adc/controller/adc-001/command/rotary_valve_2/position,2,2,TCEP port
+,,12,adc/controller/adc-001/command/pump_0/aspirate,400,10,
+,,13,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,14,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""400"" (i.e. eject the contents of the pump)"
+,,15,adc/controller/adc-001/command/rotary_valve_2/position,5,2,PBS EDTA port
+,,16,adc/controller/adc-001/command/pump_0/aspirate,1000,10,
+,,17,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,18,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""1000"" (i.e. eject the contents of the pump)"
+,,19,adc/controller/adc-001/command/rotary_valve_1/position,4,2,PBS port
+,,20,adc/controller/adc-001/command/pump_1/aspirate,1000,10,
+,,21,adc/controller/adc-001/command/rotary_valve_1/position,10,2,waste port
+,,22,adc/controller/adc-001/command/pump_1/home,,10,"this is equivalent to a ""dispense"" command with payload ""1000"" (i.e. eject the contents of the pump)"
+,,23,adc/controller/adc-001/command/rotary_valve_2/position,4,2,MQ H2O port
+,,24,adc/controller/adc-001/command/pump_0/aspirate,1500,10,
+,,25,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,26,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""1500"" (i.e. eject the contents of the pump)"
+,,27,adc/controller/adc-001/command/rotary_valve_2/position,4,2,MQ H2O port
+,,28,adc/controller/adc-001/command/pump_0/aspirate,1500,10,
+,,29,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,30,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""1500"" (i.e. eject the contents of the pump); STEPS 27-30 are a direct repeat of steps 23-26 intentionally"
+,,31,adc/controller/adc-001/command/rotary_valve_2/position,4,2,MQ H2O port
+,,32,adc/controller/adc-001/command/pump_0/aspirate,2000,10,
+,,33,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,34,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""2000"" (i.e. eject the contents of the pump); STEPS 31-34 are a direct repeat of steps 23-26, and 27-30, but with slightly larger volume of liquid. All 3 batches are for washing purposes."
+,,35,adc/controller/adc-001/command/rotary_valve_2/position,11,2,sterile air port
+,,36,adc/controller/adc-001/command/pump_0/aspirate,2500,10,
+,,37,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,38,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""2500"" (i.e. eject the contents of the pump); using air to push any remaining liquid out of relevant lines"
+,,39,adc/controller/adc-001/command/rotary_valve_2/position,11,2,sterile air port
+,,40,adc/controller/adc-001/command/pump_0/aspirate,3000,10,
+,,41,adc/controller/adc-001/command/rotary_valve_2/position,10,2,waste port
+,,42,adc/controller/adc-001/command/pump_0/home,,10,"this is equivalent to a ""dispense"" command with payload ""3000"" (i.e. eject the contents of the pump); using air to push any remaining liquid out of relevant lines (repeat w larger volume)"
+,,43,adc/controller/adc-001/command/rotary_valve_2/home,,2,
+,,44,adc/controller/adc-001/command/rotary_valve_1/home,,2,
+,,,,,,
+,,,,,,"At this point, fluid lines should be full, or mostly full, and device should be ready to perform basic reaction setup. NOTE that we may choose to include another step at the beginning to fill the mAb fluid line, which would be a similar pattern as steps 7-10 but with port 3 and a volume of ~180 instead. For now, we may decide to add this by hand to avoid excess resource consumption."

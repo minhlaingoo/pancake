@@ -61,8 +61,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                     @csrf
                 </form>
-                <button type="button"
-                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                <button type="button" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                     class="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-red-500 transition-colors focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                         stroke="currentColor" class="size-4">
@@ -98,6 +97,9 @@
                         active="{{ request()->routeIs('devices.index') }}" wire:navigate>Devices List</mijnui:list.item>
                     <mijnui:list.item href="{{ route('protocols.index') }}"
                         active="{{ request()->routeIs('protocols.index') }}" wire:navigate>Protocol List
+                    </mijnui:list.item>
+                    <mijnui:list.item href="{{ route('presets.index') }}"
+                        active="{{ request()->routeIs('presets.index') }}" wire:navigate>Presets List
                     </mijnui:list.item>
                     <mijnui:list.item href="{{ route('protocols.histories') }}"
                         active="{{ request()->routeIs('protocols.histories') }}" wire:navigate>

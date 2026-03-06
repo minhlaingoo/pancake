@@ -195,6 +195,10 @@ class MqttService
 
             $this->mqttClient->publish($topic, $message, MqttClient::QOS_AT_LEAST_ONCE);
             Log::info("Message Published to {$topic}: {$message}");
+
+            // Broadcast outgoing message for UI monitors
+            Log::debug("Dispatching MqttMessageReceived for TX: {$topic}");
+            MqttMessageReceived::dispatch($topic, $message);
         } catch (Exception $e) {
             Log::error("Error publishing message to {$topic}: " . $e->getMessage());
             throw $e;
@@ -438,6 +442,7 @@ class MqttService
             ]);
 
             // Dispatch raw event for non-telemetry listeners
+            Log::debug("Dispatching MqttMessageReceived for RX: {$topic}");
             MqttMessageReceived::dispatch($topic, $message);
 
             $data = json_decode($message, true);

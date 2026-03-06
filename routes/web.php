@@ -96,6 +96,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/', DeviceComponentsIndex::class)->name('device-components.index');
     });
 
+    Route::prefix('presets')->group(function () {
+        Route::get('/', App\Livewire\Presets\Index::class)->name('presets.index');
+        Route::get('/create', App\Livewire\Presets\Create::class)->name('presets.create');
+        Route::get('/{preset}/edit', App\Livewire\Presets\Edit::class)->name('presets.edit');
+    });
+
 
 
 
