@@ -1,94 +1,84 @@
-<div class="space-y-6">
-    <div class="flex justify-between items-center">
+<section class="space-y-4">
+    <x-alert />
+    <div class="flex justify-between items-center mb-4">
         <div>
-            <h1 class="text-2xl font-bold">Command Presets</h1>
-            <p class="text-muted-foreground">Manage your command group blueprints.</p>
+            <mijnui:breadcrumbs>
+                <mijnui:breadcrumbs.item isLast>Presets</mijnui:breadcrumbs.item>
+            </mijnui:breadcrumbs>
+            <h2 class="text-2xl font-semibold">Command Presets</h2>
         </div>
         <a href="{{ route('presets.create') }}" wire:navigate>
-            <mijnui:button color="primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Create Preset
-            </mijnui:button>
+            <mijnui:button color="primary">Create Preset</mijnui:button>
         </a>
     </div>
 
-    @if (session()->has('message'))
-        <div class="bg-success/10 text-success p-4 rounded-lg border border-success/20">
-            {{ session('message') }}
-        </div>
-    @endif
+    <div class="w-full overflow-x-auto">
+        <mijnui:table :paginate="$presets">
+            <mijnui:table.columns>
+                <mijnui:table.column class="w-40">Preset Name</mijnui:table.column>
+                <mijnui:table.column class="w-20">Version</mijnui:table.column>
+                <mijnui:table.column class="w-20">Steps</mijnui:table.column>
+                <mijnui:table.column class="w-32">Author</mijnui:table.column>
+                <mijnui:table.column class="w-32">Date</mijnui:table.column>
+                <mijnui:table.column class="w-24">Status</mijnui:table.column>
+                <mijnui:table.column class="w-32">Actions</mijnui:table.column>
+            </mijnui:table.columns>
 
-    <mijnui:card>
-        <mijnui:card.content class="p-0">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th class="text-left p-4 font-semibold">Preset Name</th>
-                        <th class="p-4 font-semibold text-center italic opacity-70">Version</th>
-                        <th class="p-4 font-semibold text-center">Steps</th>
-                        <th class="text-left p-4 font-semibold">Author</th>
-                        <th class="text-left p-4 font-semibold">Date</th>
-                        <th class="text-left p-4 font-semibold">Status</th>
-                        <th class="text-right p-4 font-semibold">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    @forelse($presets as $preset)
-                        <tr class="hover:bg-muted/30 transition-colors">
-                            <td class="p-4 font-medium">{{ $preset->name }}</td>
-                            <td class="p-4 text-center">
-                                <span class="bg-muted px-2 py-0.5 rounded text-[10px]">{{ $preset->version }}</span>
-                            </td>
-                            <td class="p-4 text-center">
-                                <mijnui:badge variant="outline">
-                                    {{ count($preset->commands ?? []) }} Steps
-                                </mijnui:badge>
-                            </td>
-                            <td class="p-4 text-muted-foreground">{{ $preset->author ?? '-' }}</td>
-                            <td class="p-4 text-muted-foreground text-sm">{{ $preset->created_at->format('Y-m-d') }}</td>
-                            <td class="p-4">
-                                @php
-                                    $statusColor = match ($preset->status) {
-                                        'Validated' => 'success',
-                                        'Draft' => 'warning',
-                                        'Error' => 'destructive',
-                                        default => 'secondary'
-                                    };
-                                @endphp
-                                <mijnui:badge color="{{ $statusColor }}">
-                                    {{ $preset->status }}
-                                </mijnui:badge>
-                            </td>
-                            <td class="p-4 text-right space-x-2">
+            <mijnui:table.rows>
+                @forelse($presets as $preset)
+                    <mijnui:table.row>
+                        <mijnui:table.cell>
+                            <span class="font-medium">{{ $preset->name }}</span>
+                        </mijnui:table.cell>
+                        <mijnui:table.cell>
+                            <mijnui:badge variant="outline" size="xs">{{ $preset->version }}</mijnui:badge>
+                        </mijnui:table.cell>
+                        <mijnui:table.cell>
+                            <mijnui:badge variant="outline">
+                                {{ count($preset->commands ?? []) }} Steps
+                            </mijnui:badge>
+                        </mijnui:table.cell>
+                        <mijnui:table.cell>{{ $preset->author ?? '-' }}</mijnui:table.cell>
+                        <mijnui:table.cell>{{ $preset->created_at->format('d M Y') }}</mijnui:table.cell>
+                        <mijnui:table.cell>
+                            @php
+                                $statusColor = match ($preset->status) {
+                                    'Validated' => 'success',
+                                    'Draft' => 'warning',
+                                    'Error' => 'danger',
+                                    default => 'secondary'
+                                };
+                            @endphp
+                            <mijnui:badge color="{{ $statusColor }}">
+                                {{ $preset->status }}
+                            </mijnui:badge>
+                        </mijnui:table.cell>
+                        <mijnui:table.cell>
+                            <div class="flex gap-2">
                                 <a href="{{ route('presets.edit', $preset) }}" wire:navigate>
-                                    <mijnui:button variant="outline" size="sm">
+                                    <mijnui:button size="sm" color="primary" variant="outline">
                                         Edit
                                     </mijnui:button>
                                 </a>
-                                <mijnui:button wire:click="delete({{ $preset->id }})"
-                                    wire:confirm="Are you sure you want to delete this preset?" variant="ghost" size="sm"
-                                    class="text-destructive hover:bg-destructive/10">
+                                <mijnui:button 
+                                    size="sm" 
+                                    color="danger" 
+                                    variant="outline"
+                                    wire:click="delete({{ $preset->id }})"
+                                    wire:confirm="Are you sure you want to delete this preset?">
                                     Delete
                                 </mijnui:button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="p-8 text-center text-muted-foreground">
-                                No presets found. Create your first blueprint to get started.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </mijnui:card.content>
-    </mijnui:card>
-
-    <div class="mt-4">
-        {{ $presets->links() }}
+                            </div>
+                        </mijnui:table.cell>
+                    </mijnui:table.row>
+                @empty
+                    <mijnui:table.row>
+                        <mijnui:table.cell colspan="7" class="text-center text-muted-foreground py-8">
+                            No presets found. Create your first preset to get started.
+                        </mijnui:table.cell>
+                    </mijnui:table.row>
+                @endforelse
+            </mijnui:table.rows>
+        </mijnui:table>
     </div>
-</div>
+</section>

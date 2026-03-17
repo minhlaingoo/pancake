@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
+/* Google Fonts loaded via <link> in partials/head.blade.php for performance */
 
 @import "tailwindcss";
 @import '../../vendor/mijnui/mijnui/dist/mijnui.css';
@@ -57,11 +57,6 @@ mijnui-card,
     border-radius: 1rem;
 }
 
-mijnui-card:hover,
-[mijnui-card]:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
 
 mijnui-header,
 [mijnui-header] {

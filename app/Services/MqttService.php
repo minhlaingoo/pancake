@@ -174,7 +174,15 @@ class MqttService
     }
 
     /**
-     * Internal helper to standardize topic structure and publish commands.
+     * Publish a command to a device component via MQTT.
+     *
+     * Builds the topic: adc/controller/{model}/command/{device}/{action}
+     *
+     * @param string $model Device model identifier (e.g., 'adc-001')
+     * @param string $device Component name (e.g., 'tec', 'stirrer', 'pump_0')
+     * @param string $action Command action (e.g., 'setpoint', 'enable', 'speed')
+     * @param string $payload Command value as string
+     * @throws \Exception If publishing fails after retry attempts
      */
     public function deviceCommand(string $model, string $device, string $action, string $payload): void
     {
@@ -183,7 +191,14 @@ class MqttService
     }
 
     /**
-     * Publish a raw message to a topic.
+     * Publish a raw message to an MQTT topic.
+     *
+     * Automatically reconnects if the client is disconnected and broadcasts
+     * an MqttMessageReceived event for UI monitors.
+     *
+     * @param string $topic The full MQTT topic path
+     * @param string $message The message payload
+     * @throws \Exception If publishing fails
      */
     public function publishMessage(string $topic, string $message): void
     {
@@ -206,7 +221,10 @@ class MqttService
     }
 
     /**
-     * Temperature Control (TEC)
+     * Set TEC temperature setpoint. Value is clamped to 0-50°C.
+     *
+     * @param string $model Device model identifier
+     * @param float $temp Target temperature in °C
      */
     public function tecSetSetpoint(string $model, float $temp): void
     {
@@ -221,7 +239,10 @@ class MqttService
     }
 
     /**
-     * Stirrer Control
+     * Set stirrer speed. Value is clamped to 0-1000 RPM.
+     *
+     * @param string $model Device model identifier
+     * @param int $rpm Target speed in RPM
      */
     public function stirrerSetSpeed(string $model, int $rpm): void
     {
@@ -255,7 +276,7 @@ class MqttService
     }
 
     /**
-     * Pump Control
+     * Pump Control (pump_0 and pump_1)
      */
     public function pumpInit(string $model, int $pumpIndex = 0): void
     {
@@ -275,6 +296,34 @@ class MqttService
     public function pumpHome(string $model, int $pumpIndex = 0): void
     {
         $this->deviceCommand($model, "pump_{$pumpIndex}", 'home', '');
+    }
+
+    public function pumpStop(string $model, int $pumpIndex = 0): void
+    {
+        $this->deviceCommand($model, "pump_{$pumpIndex}", 'stop', '');
+    }
+
+    /**
+     * Rotary Valve Control (rotary_valve_1 and rotary_valve_2)
+     */
+    public function rotaryValveInit(string $model, int $valveIndex = 1): void
+    {
+        $this->deviceCommand($model, "rotary_valve_{$valveIndex}", 'init', '');
+    }
+
+    public function rotaryValveSetPosition(string $model, int $position, int $valveIndex = 1): void
+    {
+        $this->deviceCommand($model, "rotary_valve_{$valveIndex}", 'position', (string) $position);
+    }
+
+    public function rotaryValveHome(string $model, int $valveIndex = 1): void
+    {
+        $this->deviceCommand($model, "rotary_valve_{$valveIndex}", 'home', '');
+    }
+
+    public function rotaryValveStop(string $model, int $valveIndex = 1): void
+    {
+        $this->deviceCommand($model, "rotary_valve_{$valveIndex}", 'stop', '');
     }
 
     /**
@@ -365,7 +414,14 @@ class MqttService
     }
 
     /**
-     * Send all commands defined in a protocol phase.
+     * Send all MQTT commands defined in a protocol phase.
+     *
+     * Iterates over the phase's commands array, formats payloads by type,
+     * and publishes each to the appropriate device topic. Incomplete commands
+     * (missing controller or action) are skipped with a warning.
+     *
+     * @param string $deviceId Device model identifier for topic routing
+     * @param array $phase Phase data containing 'commands' array and 'label'
      */
     public function sendPhaseCommands(string $deviceId, array $phase): void
     {

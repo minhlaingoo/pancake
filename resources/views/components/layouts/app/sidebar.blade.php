@@ -1,4 +1,8 @@
 <mijnui:wrapper>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-[99999] focus:top-2 focus:left-2 focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg">
+        Skip to main content
+    </a>
+    <nav aria-label="Main navigation">
     <mijnui:sidebar x-data variant="double">
 
         <!-- --------------------------- Sidebar Header ---------------------------- -->
@@ -8,11 +12,11 @@
                 @php
                     $logoPath = setting('general')->logoPath ?? null;
                 @endphp
-                <img src="{{ $logoPath ? Storage::url($logoPath) : '/logo.png' }}" alt="Logo"
+                <img src="{{ $logoPath ? Storage::url($logoPath) : '/logo.png' }}" alt="{{ setting('general')->appName ?? 'Application' }} logo"
                     class="w-full mx-auto px-2 my-4" />
             </mijnui:sidebar.logo>
 
-            <mijnui:sidebar.button name="dashboard">
+            <mijnui:sidebar.button name="dashboard" aria-label="Dashboard">
 
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em"
                     width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -22,7 +26,7 @@
             </mijnui:sidebar.button>
 
             <!-- User Icon -->
-            <mijnui:sidebar.button name="user">
+            <mijnui:sidebar.button name="user" aria-label="User Management">
                 <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em"
                     width="1em" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -32,7 +36,7 @@
             </mijnui:sidebar.button>
 
             <!-- Device Icon -->
-            <mijnui:sidebar.button name="device">
+            <mijnui:sidebar.button name="device" aria-label="Device Management">
 
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
                     <path fill-rule="evenodd"
@@ -45,7 +49,7 @@
             </mijnui:sidebar.button>
 
             <!-- Setting Icon -->
-            <mijnui:sidebar.button name="setting">
+            <mijnui:sidebar.button name="setting" aria-label="Settings">
 
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
                     <path fill-rule="evenodd"
@@ -61,7 +65,7 @@
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                     @csrf
                 </form>
-                <button type="button" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                <button type="button" aria-label="Log out" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                     class="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-red-500 transition-colors focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                         stroke="currentColor" class="size-4">
@@ -142,11 +146,12 @@
         </mijnui:sidebar.double>
 
     </mijnui:sidebar>
+    </nav>
 
     <mijnui:header>
         <mijnui:header.navbar>
 
-            <mijnui:icon x-on:click="$store.theme.switchTheme()"
+            <mijnui:icon x-on:click="$store.theme.switchTheme()" aria-label="Toggle dark mode"
                 class="hover:bg-accent p-1 size-8 rounded  cursor-pointer border">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-6 dark-icon hidden">
@@ -161,7 +166,7 @@
                 </svg>
             </mijnui:icon>
 
-            <mijnui:icon x-on:click="drawerOpen = true"
+            <mijnui:icon x-on:click="drawerOpen = true" aria-label="Open notifications"
                 class="p-1 size-8 rounded hover:bg-accent cursor-pointer border">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-6">
@@ -173,8 +178,8 @@
         </mijnui:header.navbar>
     </mijnui:header>
 
-    <div class="p-4 pl-0">
+    <main id="main-content" class="p-4 pl-0">
         {{ $slot }}
-    </div>
+    </main>
 
 </mijnui:wrapper>

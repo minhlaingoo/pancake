@@ -18,7 +18,7 @@ class Index extends Component
         try {
             DB::beginTransaction();
             $role = Role::findOrFail($id);
-            if ($role->users) {
+            if ($role->users()->exists()) {
                 session()->flash('error', 'Users with this role must be deleted or changed role first!');
                 return redirect()->back();
             }

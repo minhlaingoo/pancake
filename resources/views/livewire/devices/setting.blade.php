@@ -57,6 +57,83 @@
             </mijnui:card.content>
         </mijnui:card>
 
+        {{-- Microvalve Configuration --}}
+        <mijnui:card class="border-2 border-blue-200 bg-blue-50/50">
+            <mijnui:card.header>
+                <mijnui:card.title class="text-lg font-semibold flex items-center gap-2">
+                    <i class="fas fa-valve text-blue-500"></i>
+                    Microvalve Configuration
+                </mijnui:card.title>
+                <mijnui:card.description>
+                    Configure the number and range of available microvalves for this device. 
+                    <strong>Default:</strong> 6 microvalves starting from index 0 (Microvalves 0-5)
+                </mijnui:card.description>
+            </mijnui:card.header>
+            <mijnui:card.content class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold">Number of Microvalves</label>
+                        <input 
+                            type="number" 
+                            wire:model.live="microvalveCount" 
+                            min="1" 
+                            max="16" 
+                            class="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
+                            placeholder="6">
+                        <p class="text-xs text-muted-foreground mt-1">Range: 1-16 microvalves (Default: 6)</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold">Starting Index</label>
+                        <input 
+                            type="number" 
+                            wire:model.live="microvalveStart" 
+                            min="0" 
+                            max="15"
+                            class="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
+                            placeholder="0">
+                        <p class="text-xs text-muted-foreground mt-1">Range: 0-15 (Default: 0 for microvalves 0-5)</p>
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div>
+                    <label class="text-sm font-semibold">Available Microvalves (Live Preview)</label>
+                    <div class="mt-1 p-3 bg-background border border-input rounded-md min-h-[50px]">
+                        @if(empty($availableMicrovalves))
+                            <span class="text-muted-foreground italic">No microvalves configured</span>
+                        @else
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($availableMicrovalves as $mv)
+                                    <span class="inline-flex items-center px-2 py-1 rounded bg-green-100 text-green-800 text-sm">
+                                        <i class="fas fa-valve mr-1"></i>
+                                        {{ $mv }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                    <p class="text-xs text-muted-foreground mt-1">
+                        @if(!empty($availableMicrovalves))
+                            Range: {{ min($availableMicrovalves) }} to {{ max($availableMicrovalves) }} 
+                            ({{ count($availableMicrovalves) }} total)
+                        @endif
+                    </p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-2 pt-2">
+                    <mijnui:button wire:click="saveMicrovalveConfiguration" color="primary">
+                        <i class="fas fa-save mr-2"></i>
+                        Save Microvalve Config
+                    </mijnui:button>
+                    <mijnui:button wire:click="resetMicrovalvesToDefault" variant="outline">
+                        <i class="fas fa-undo mr-2"></i>
+                        Reset to Default
+                    </mijnui:button>
+                </div>
+            </mijnui:card.content>
+        </mijnui:card>
+
         {{-- Device Actions (MQTT Commands) --}}
         <mijnui:card>
             <mijnui:card.header>

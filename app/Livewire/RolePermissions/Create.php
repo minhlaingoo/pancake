@@ -62,8 +62,7 @@ class Create extends Component
             session()->flash('message', 'Role created successfully.');
             return redirect()->route('role-permissions.index');
         } catch (Exception $e) {
-            dd($e->getMessage());
-            session()->flash('error', 'Role create failed.');
+            session()->flash('error', 'Role create failed: ' . $e->getMessage());
         }
     }
 

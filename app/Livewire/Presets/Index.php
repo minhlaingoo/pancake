@@ -14,6 +14,10 @@ class Index extends Component
 
     public function delete($id)
     {
+        if (!checkPermission('preset', 'delete')) {
+            abort(403);
+        }
+
         Preset::findOrFail($id)->delete();
         session()->flash('message', 'Preset deleted successfully.');
     }

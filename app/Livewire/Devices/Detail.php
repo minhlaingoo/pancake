@@ -14,6 +14,7 @@ class Detail extends LivewireComponent
     public $logs = [];
     public $telemetryData = [];
     public $selectedPresetId;
+    public $availableMicrovalves = [];
     public $controllerCommands = [
         'tec' => [
             'setpoint' => 'float',
@@ -21,22 +22,37 @@ class Detail extends LivewireComponent
         ],
         'stirrer' => [
             'speed' => 'int',
-            'stop' => 'string',
+            'stop' => 'none',
         ],
         'microvalve' => [
-            'open' => 'valve_select',
-            'close' => 'valve_select',
+            'open' => 'microvalve_select',
+            'close' => 'microvalve_select',
         ],
-        'pump' => [
-            'init' => 'string',
+        'pump_0' => [
+            'init' => 'none',
             'aspirate' => 'float',
             'dispense' => 'float',
-            'home' => 'string',
+            'home' => 'none',
+            'stop' => 'none',
         ],
-        'rotary_valve' => [
-            'init' => 'string',
+        'pump_1' => [
+            'init' => 'none',
+            'aspirate' => 'float',
+            'dispense' => 'float',
+            'home' => 'none',
+            'stop' => 'none',
+        ],
+        'rotary_valve_1' => [
+            'init' => 'none',
             'position' => 'int',
-            'home' => 'string',
+            'home' => 'none',
+            'stop' => 'none',
+        ],
+        'rotary_valve_2' => [
+            'init' => 'none',
+            'position' => 'int',
+            'home' => 'none',
+            'stop' => 'none',
         ],
     ];
 
@@ -100,33 +116,193 @@ class Detail extends LivewireComponent
         ];
     }
 
+    public function actionChanged($index, $action)
+    {
+        logger("actionChanged method called: index={$index}, action={$action}");
+        $this->updateTestCommandType($index, $action);
+        $this->dispatch('$refresh');
+    }
+
+    public function updatedMicrovalveCount()
+    {
+        $this->updateAvailableMicrovalves();
+    }
+
+    public function updatedMicrovalveStart()
+    {
+        $this->updateAvailableMicrovalves();
+    }
+
+    protected function updateAvailableMicrovalves()
+    {
+        $count = max(1, min(16, (int) $this->microvalveCount)); // Ensure valid range
+        $start = max(0, min(15, (int) $this->microvalveStart)); // Ensure valid range
+        
+        $this->availableMicrovalves = range($start, $start + $count - 1);
+        
+        // Make sure we don't exceed 15 (max microvalve index)
+        $this->availableMicrovalves = array_filter($this->availableMicrovalves, fn($v) => $v <= 15);
+    }
+
+    public function saveConfiguration()
+    {
+        // Update device configuration
+        $this->device->setConfig('microvalves.count', (int) $this->microvalveCount);
+        $this->device->setConfig('microvalves.start', (int) $this->microvalveStart);
+        $this->device->setConfig('microvalves.description', "Microvalves {$this->microvalveStart}-" . ($this->microvalveStart + $this->microvalveCount - 1) . " are present");
+        
+        $this->device->setConfig('pumps.count', (int) $this->pumpCount);
+        $this->device->setConfig('rotary_valves.count', (int) $this->rotaryValveCount);
+        
+        // Update available microvalves
+        $this->updateAvailableMicrovalves();
+        
+        session()->flash('message', 'Device configuration saved successfully.');
+    }
+
+    protected function rules()
+    {
+        $rules = [];
+        
+        foreach ($this->testCommands as $index => $command) {
+            $type = $command['type'] ?? 'string';
+            
+            switch ($type) {
+                case 'int':
+                    $rules["testCommands.{$index}.value"] = 'nullable|integer|min:0';
+                    break;
+                case 'float':
+                    $rules["testCommands.{$index}.value"] = 'nullable|numeric|min:0';
+                    break;
+                case 'microvalve_select':
+                    $availableList = implode(',', $this->availableMicrovalves);
+                    $rules["testCommands.{$index}.value"] = "nullable|integer|in:{$availableList}";
+                    break;
+                case 'valve_select':
+                    $rules["testCommands.{$index}.value"] = 'nullable|integer|between:1,16';
+                    break;
+                case 'none':
+                    $rules["testCommands.{$index}.value"] = 'nullable'; // No validation needed
+                    break;
+                default:
+                    $rules["testCommands.{$index}.value"] = 'nullable|string|max:255';
+            }
+        }
+        
+        return $rules;
+    }
+
+    protected function messages()
+    {
+        $availableMicrovalves = implode(', ', $this->availableMicrovalves);
+        
+        return [
+            'testCommands.*.value.integer' => 'Value must be a whole number.',
+            'testCommands.*.value.numeric' => 'Value must be a number.',
+            'testCommands.*.value.min' => 'Value must be greater than or equal to 0.',
+            'testCommands.*.value.between' => 'Value must be between :min and :max.',
+            'testCommands.*.value.max' => 'Value cannot exceed 255 characters.',
+            'testCommands.*.value.in' => "Microvalve must be one of the available ones: {$availableMicrovalves}.",
+        ];
+    }
+
+    public function updated($property)
+    {
+        // Validate in real-time when testCommand values change
+        if (str_starts_with($property, 'testCommands.') && str_ends_with($property, '.value')) {
+            $this->validateOnly($property);
+        }
+    }
+
     public function removeTestCommand($index)
     {
         unset($this->testCommands[$index]);
         $this->testCommands = array_values($this->testCommands);
     }
 
+    public function updatedTestCommandsAction($value, $index)
+    {
+        logger("updatedTestCommandsAction called: index={$index}, value={$value}");
+        $this->updateTestCommandType($index, $value);
+    }
+
+    public function updatedTestCommandsController($value, $index)
+    {
+        logger("updatedTestCommandsController called: index={$index}, value={$value}");
+        $this->testCommands[$index]['action'] = '';
+        $this->testCommands[$index]['type'] = 'string';
+        $this->testCommands[$index]['value'] = '';
+    }
+
+    public function updateTestCommandType($index, $action)
+    {
+        $controller = $this->testCommands[$index]['controller'] ?? '';
+        logger("updateTestCommandType: Controller={$controller}, Action={$action}");
+        
+        if (isset($this->controllerCommands[$controller][$action])) {
+            $newType = $this->controllerCommands[$controller][$action];
+            $this->testCommands[$index]['type'] = $newType;
+            $this->testCommands[$index]['value'] = '';
+            
+            logger("✅ Type updated: NewType={$newType}");
+            logger("Updated command: " . json_encode($this->testCommands[$index]));
+        } else {
+            logger("❌ Action '{$action}' not found for controller '{$controller}'");
+            logger("Available actions: " . json_encode($this->controllerCommands[$controller] ?? []));
+        }
+    }
+
     public function updatedTestCommands($value, $key)
     {
-        // testCommands.0.controller
+        // Log all updates
+        logger("updatedTestCommands called: key={$key}, value={$value}");
+        
+        // Handle different key formats:
+        // Format 1: "testCommands.0.action" (expected)
+        // Format 2: "0.action" (what we're getting)
         $parts = explode('.', $key);
-        if (count($parts) < 3)
+        
+        if (count($parts) === 2) {
+            // Format: "0.action" - add the missing prefix
+            $index = $parts[0];
+            $property = $parts[1];
+            logger("Detected short format: index={$index}, property={$property}");
+        } elseif (count($parts) === 3) {
+            // Format: "testCommands.0.action" - standard format
+            $index = $parts[1];
+            $property = $parts[2];
+            logger("Detected standard format: index={$index}, property={$property}");
+        } else {
+            logger("Invalid key format: {$key}");
             return;
-
-        $index = $parts[1];
-        $property = $parts[2];
+        }
 
         if ($property === 'controller') {
             $this->testCommands[$index]['action'] = '';
             $this->testCommands[$index]['type'] = 'string';
             $this->testCommands[$index]['value'] = '';
+            logger("Controller changed, reset action/type/value");
         }
 
         if ($property === 'action') {
             $controller = $this->testCommands[$index]['controller'];
             $action = $value;
+            logger("Action change: Controller={$controller}, Action={$action}");
+            
             if (isset($this->controllerCommands[$controller][$action])) {
-                $this->testCommands[$index]['type'] = $this->controllerCommands[$controller][$action];
+                $newType = $this->controllerCommands[$controller][$action];
+                $this->testCommands[$index]['type'] = $newType;
+                // Clear the value when action changes to avoid conflicts
+                $this->testCommands[$index]['value'] = '';
+                
+                logger("✅ Action updated: NewType={$newType}");
+                logger("Current testCommand after update: " . json_encode($this->testCommands[$index]));
+                
+                // Force re-render
+                $this->dispatch('$refresh');
+            } else {
+                logger("❌ Action not found in controllerCommands");
+                logger("Available actions for {$controller}: " . json_encode($this->controllerCommands[$controller] ?? 'N/A'));
             }
         }
     }
@@ -146,8 +322,8 @@ class Detail extends LivewireComponent
         }
 
         if ($command['value'] === '' || $command['value'] === null) {
-            // Allow empty value for string types (init, home, stop)
-            if (!in_array($command['type'], ['string'])) {
+            // Allow empty value for none types (init, home, stop) and string types
+            if (!in_array($command['type'], ['string', 'none'])) {
                 session()->flash('error', 'Please enter a value.');
                 return;
             }
@@ -164,9 +340,12 @@ class Detail extends LivewireComponent
             $payload = $value ? '1' : '0';
         }
 
-        $mqttService->deviceCommand($this->device->model, $controller, $action, $payload);
-
-        session()->flash('message', 'Command sent: ' . strtoupper($controller) . '/' . $action);
+        try {
+            $mqttService->deviceCommand($this->device->model, $controller, $action, $payload);
+            session()->flash('message', 'Command sent: ' . strtoupper($controller) . '/' . $action);
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to send command: ' . $e->getMessage());
+        }
     }
 
     public function sendPreset()
@@ -199,6 +378,9 @@ class Detail extends LivewireComponent
                 'updated_at' => $component->updated_at->format('H:i:s'),
             ];
         }
+        
+        // Get available microvalves from device configuration
+        $this->availableMicrovalves = $this->device->getAvailableMicrovalves();
 
         // Add default test commands
         $this->testCommands = [
@@ -210,27 +392,39 @@ class Detail extends LivewireComponent
             ],
             [
                 'controller' => 'stirrer',
-                'action' => 'speed',
+                'action' => 'stop',
                 'value' => '',
-                'type' => 'int'
+                'type' => 'none'
             ],
             [
                 'controller' => 'microvalve',
                 'action' => 'open',
-                'value' => '',
-                'type' => 'valve_select'
+                'value' => '0',
+                'type' => 'microvalve_select'
             ],
             [
-                'controller' => 'pump',
+                'controller' => 'pump_0',
                 'action' => 'init',
                 'value' => '',
-                'type' => 'string'
+                'type' => 'none'
             ],
             [
-                'controller' => 'rotary_valve',
+                'controller' => 'pump_1',
+                'action' => 'home',
+                'value' => '',
+                'type' => 'none'
+            ],
+            [
+                'controller' => 'rotary_valve_1',
                 'action' => 'init',
                 'value' => '',
-                'type' => 'string'
+                'type' => 'none'
+            ],
+            [
+                'controller' => 'rotary_valve_2',
+                'action' => 'home',
+                'value' => '',
+                'type' => 'none'
             ],
         ];
     }

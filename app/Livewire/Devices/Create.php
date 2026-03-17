@@ -32,9 +32,13 @@ class Create extends Component
         //     $this->model = $deviceName;
         // }
 
-        Device::create($data);
+        // Create device with default configuration (microvalves 0-5)
+        $device = Device::create($data);
+        $device->configuration = Device::getDefaultConfiguration();
+        $device->save();
+        
         $this->reset();
-        session()->flash('message', "Device created successfully!");
+        session()->flash('message', "Device created successfully with default microvalve configuration (0-5)!");
         return to_route('devices.index');
     }
 

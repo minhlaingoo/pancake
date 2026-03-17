@@ -9,7 +9,7 @@
     <mijnui:header>
         <mijnui:header.navbar>
 
-            <mijnui:icon x-on:click="$store.theme.switchTheme()"
+            <mijnui:icon x-on:click="$store.theme.switchTheme()" aria-label="Toggle dark mode"
                 class="hover:bg-accent p-1 size-8 rounded  cursor-pointer border">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-6 dark-icon hidden">
@@ -24,7 +24,7 @@
                 </svg>
             </mijnui:icon>
 
-            <mijnui:icon x-on:click="drawerOpen = true"
+            <mijnui:icon x-on:click="drawerOpen = true" aria-label="Open notifications"
                 class="p-1 size-8 rounded hover:bg-accent cursor-pointer border">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                     stroke="currentColor" class="size-6">
@@ -42,22 +42,21 @@
                     <mijnui:dropdown.item href="{{ route('user-profile') }}">
                         {{ __('Profile') }}
                     </mijnui:dropdown.item>
-                    <mijnui:dropdown.item as="button" type="submit" icon="arrow-right-start-on-rectangle">
-                        <form method="POST" action="{{ route('logout') }}" class="w-full ">
-                            @csrf
-                            <mijnui:button type="submit">
-                                {{ __('Log Out') }}
-                            </mijnui:button>
-                        </form>
-                    </mijnui:dropdown.item>
+                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                        @csrf
+                        <mijnui:dropdown.item as="button" type="submit" icon="arrow-right-start-on-rectangle">
+                            {{ __('Log Out') }}
+                        </mijnui:dropdown.item>
+                    </form>
                 </mijnui:dropdown.content>
             </mijnui:dropdown>
         </mijnui:header.navbar>
     </mijnui:header>
 
-    {{-- //! notificatiion --}}
+    {{-- Notification Drawer --}}
     <div x-cloak x-on:click.self="drawerOpen = false"
         x-bind:class="drawerOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'"
+        role="dialog" aria-modal="true" aria-label="Notifications"
         class="transition w-screen h-screen fixed top-0 left-0 z-[10000] bg-gray-900/80">
         <div x-show="drawerOpen" x-transition:enter="transition transform ease-in-out duration-300"
             x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
@@ -67,8 +66,8 @@
             <h3 class="text-lg font-semibold px-4">Notifications</h3>
             <hr>
             <div class="px-4 py-2">
-                <p class="text-center text-sm">
-                    No notifications Yet!
+                <p class="text-center text-sm text-muted-foreground">
+                    No notifications yet.
                 </p>
             </div>
         </div>

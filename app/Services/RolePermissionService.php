@@ -43,7 +43,7 @@ class RolePermissionService
                 ])
                 ->status('fail')
                 ->save();
-            dd($e->getMessage());
+            throw $e;
         }
     }
 }

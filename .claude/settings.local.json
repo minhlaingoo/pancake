@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"C:\\\\Users\\\\HP\\\\projects\\\\project-pancake\\\\resources\\\\views\" -type f -name \"*.blade.php\" 2>/dev/null | sort)",
+      "Bash(find \"C:\\\\Users\\\\HP\\\\projects\\\\project-pancake\\\\app\\\\Livewire\" -type f -name \"*.php\" 2>/dev/null | sort)"
+    ]
+  }
+}

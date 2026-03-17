@@ -71,9 +71,7 @@ class Create extends Component
             activity('user')
                 ->log($e->getMessage())
                 ->event('create')
-                ->properties([
-                    ...$validated_data
-                ])
+                ->properties(collect($validated_data)->except(['password', 'password_confirmation'])->toArray())
                 ->status('fail')
                 ->save();
             session()->flash('error', 'User create failed.');

@@ -75,12 +75,13 @@ class Edit extends Component
 
     public function updatedCommands($value, $key)
     {
+        // Format: {index}.{property} (Livewire 3 passes relative key)
         $parts = explode('.', $key);
-        if (count($parts) < 3)
+        if (count($parts) < 2)
             return;
 
-        $index = $parts[1];
-        $property = $parts[2];
+        $index = $parts[0];
+        $property = $parts[1];
 
         if ($property === 'controller') {
             $this->commands[$index]['action'] = '';

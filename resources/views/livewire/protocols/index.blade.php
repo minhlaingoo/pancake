@@ -65,8 +65,8 @@
     </div>
 
     @if(count($protocols))
-        <div>
-            <mijnui:table :paginate="$protocols" class="overflow-none">
+        <div class="w-full overflow-x-auto">
+            <mijnui:table :paginate="$protocols">
 
                 <mijnui:table.columns>
                     <mijnui:table.column>Sample Id</mijnui:table.column>
@@ -116,7 +116,7 @@
             </mijnui:table>
         </div>
     @else
-        <div class="text-center py-10 text-gray-500">
+        <div class="text-center py-10 text-muted-foreground">
             No Protocols Found.
         </div>
     @endif

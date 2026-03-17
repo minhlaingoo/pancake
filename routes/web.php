@@ -82,11 +82,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/setting', DevicesSetting::class)->name('devices.setting')->middleware('can:update,device');
     });
 
-    Route::prefix('protocols')->group(function () {
+    Route::prefix('protocols')->middleware('can:view,protocol')->group(function () {
         Route::get('/', ProtocolsIndex::class)->name('protocols.index');
-        Route::get('/create', ProtocolsCreate::class)->name('protocols.create');
-        Route::get('/{sample_id}/final-lab', ProtocolsFinalLab::class)->name('protocols.final-lab');
-        Route::get('/{sample_id}/edit', App\Livewire\Protocols\Edit::class)->name('protocols.edit');
+        Route::get('/create', ProtocolsCreate::class)->name('protocols.create')->middleware('can:create,protocol');
+        Route::get('/{sample_id}/final-lab', ProtocolsFinalLab::class)->name('protocols.final-lab')->middleware('can:update,protocol');
+        Route::get('/{sample_id}/edit', App\Livewire\Protocols\Edit::class)->name('protocols.edit')->middleware('can:update,protocol');
         Route::get('/run', App\Livewire\Protocols\Run::class)->name('protocols.run');
         Route::get('/{protocol}/{uid}/processing', ProtocolProcessing::class)->name('protocols.processing');
         Route::get('/histories', HistoryList::class)->name('protocols.histories');

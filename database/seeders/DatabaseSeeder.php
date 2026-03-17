@@ -15,13 +15,24 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(DefaultRolePermissionSeeder::class);
+        $this->call(DeviceSeeder::class);
+        $this->call(PresetSeeder::class);
 
         // User::factory()->create();
+        $adminRole = \App\Models\Role::where('name', 'Administrator')->first();
+        
         if (!User::where('email', 'admin@iprogen.com')->exists()) {
             $user = User::factory()->create([
                 'name' => 'Admin PanCake',
                 'email' => 'admin@iprogen.com',
+                'role_id' => $adminRole?->id,
             ]);
+        } else {
+            // Ensure existing admin user has Administrator role
+            $user = User::where('email', 'admin@iprogen.com')->first();
+            if ($adminRole && $user->role_id !== $adminRole->id) {
+                $user->update(['role_id' => $adminRole->id]);
+            }
         }
 
         $settingFactory = new \Database\Factories\SettingFactory();

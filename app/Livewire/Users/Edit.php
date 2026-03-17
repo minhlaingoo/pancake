@@ -26,7 +26,7 @@ class Edit extends Component
         if (!$this->user) abort(404);
         $this->roles = Role::get();
         $this->fill($this->user);
-        $this->is_active = $this->is_active == 1;;
+        $this->is_active = $this->is_active == 1;
     }
 
     public function rules()

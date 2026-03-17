@@ -99,7 +99,8 @@
                                         <div class="col-span-4">
                                             <label
                                                 class="text-[10px] uppercase font-bold text-muted-foreground block mb-1">Action</label>
-                                            <select wire:model.live="testCommands.{{ $index }}.action"
+                                            <select wire:model="testCommands.{{ $index }}.action"
+                                                wire:change="actionChanged({{ $index }}, $event.target.value)"
                                                 class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
                                                 <option value="">Select Action...</option>
                                                 @if($command['controller'])
@@ -112,8 +113,36 @@
                                         <div class="col-span-4 flex items-end gap-2">
                                             <div class="flex-1">
                                                 <label
-                                                    class="text-[10px] uppercase font-bold text-muted-foreground block mb-1">Value</label>
-                                                @if($command['type'] === 'valve_select')
+                                                    class="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                                                    Value (Type: {{ $command['type'] ?? 'undefined' }})
+                                                </label>
+                                                {{-- Debug: Type = {{ $command['type'] ?? 'null' }} --}}
+                                                @if($command['type'] === 'microvalve_select')
+                                                    {{-- Microvalve Select --}}
+                                                    <select wire:model="testCommands.{{ $index }}.value"
+                                                        class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
+                                                        <option value="">Select Microvalve...</option>
+                                                        {{-- Show available microvalves first --}}
+                                                        @foreach($availableMicrovalves as $v)
+                                                            <option value="{{ $v }}" class="text-green-600">
+                                                                Microvalve {{ $v }} (Available)
+                                                            </option>
+                                                        @endforeach
+                                                        {{-- Show unavailable microvalves (0-15 range, excluding available ones) --}}
+                                                        @for($v = 0; $v <= 15; $v++)
+                                                            @if(!in_array($v, $availableMicrovalves))
+                                                                <option value="{{ $v }}" class="text-gray-400" disabled>
+                                                                    Microvalve {{ $v }} (Not Present)
+                                                                </option>
+                                                            @endif
+                                                        @endfor
+                                                    </select>
+                                                @elseif($command['type'] === 'none')
+                                                    {{-- None Type (disabled) --}}
+                                                    <mijnui:input wire:model="testCommands.{{ $index }}.value" class="h-9" 
+                                                        placeholder="No value required" disabled />
+                                                @elseif($command['type'] === 'valve_select')
+                                                    {{-- Valve Select --}}
                                                     <select wire:model="testCommands.{{ $index }}.value"
                                                         class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm">
                                                         <option value="">Select Valve...</option>
@@ -122,7 +151,30 @@
                                                         @endfor
                                                     </select>
                                                 @else
-                                                    <mijnui:input wire:model="testCommands.{{ $index }}.value" class="h-9" />
+                                                    {{-- Default: int, float, string --}}
+                                                    @php
+                                                        $inputType = match($command['type']) {
+                                                            'int' => 'number',
+                                                            'float' => 'number',
+                                                            default => 'text'
+                                                        };
+                                                        $inputStep = $command['type'] === 'float' ? '0.01' : '1';
+                                                        $inputMin = in_array($command['type'], ['int', 'float']) ? '0' : null;
+                                                    @endphp
+                                                    <div>
+                                                        <input 
+                                                            wire:model.blur="testCommands.{{ $index }}.value" 
+                                                            type="{{ $inputType }}"
+                                                            @if($inputStep !== '1') step="{{ $inputStep }}" @endif
+                                                            @if($inputMin) min="{{ $inputMin }}" @endif
+                                                            class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm 
+                                                                   @error('testCommands.'.$index.'.value') border-red-500 @enderror"
+                                                            placeholder="Enter {{ $command['type'] ?? 'value' }}"
+                                                        />
+                                                        @error('testCommands.'.$index.'.value')
+                                                            <span class="text-xs text-red-500 mt-1">{{ $message }}</span>
+                                                        @enderror
+                                                    </div>
                                                 @endif
                                             </div>
                                             <mijnui:button wire:click="sendSingleTestCommand({{ $index }})" color="primary"

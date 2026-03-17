@@ -13,4 +13,9 @@ class Permission extends Model
         'name',
         'feature_id'
     ];
+
+    public function feature()
+    {
+        return $this->belongsTo(Feature::class);
+    }
 }

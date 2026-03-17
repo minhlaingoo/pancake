@@ -1,5 +1,5 @@
-<div class="max-w-6xl mx-auto space-y-4 flex flex-row sm:flex-col">
-    <div class="bg-white w-fit  sm:w-full px-2 py-2 sm:px-0 sm:py-4 shadow-lg rounded">
+<div class="max-w-6xl mx-auto space-y-4 flex flex-col">
+    <div class="bg-card w-fit sm:w-full px-2 py-2 sm:px-0 sm:py-4 border shadow-sm rounded">
         <mijnui:stepper variant="default" size="default" class="mx-auto">
 
             @php $last = count($steps); @endphp
@@ -13,7 +13,7 @@
         </mijnui:stepper>
     </div>
 
-    <div class="bg-white self-start w-full py-4 shadow-lg rounded">
+    <div class="bg-card self-start w-full py-4 border shadow-sm rounded">
         <h2 class="text-xl mb-4 font-medium text-center">{{ $steps[$current_step - 1]['title'] }}</h2>
         <div class="mx-auto w-fit space-y-4">
 
@@ -26,7 +26,7 @@
                         <i
                             class="fas fa-clock text-xs text-white rounded size-5 bg-yellow-500 flex items-center justify-center"></i>
                     @endif
-                    <p class="text-gray-600">{{ $step['title'] }}</p>
+                    <p class="text-muted-foreground">{{ $step['title'] }}</p>
                 </div>
             @endforeach
         </div>

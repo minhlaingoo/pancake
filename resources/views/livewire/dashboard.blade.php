@@ -4,25 +4,21 @@
             'title' => 'Total Users',
             'value' => $totalUser ?? 0,
             'icon' => 'fa-solid fa-users',
-            'slogan' => '+1 from this month',
         ],
         [
             'title' => 'Total Roles',
             'value' => $totalRole ?? 0,
             'icon' => 'fa-solid fa-layer-group',
-            'slogan' => '+1 from this month',
         ],
         [
             'title' => 'Total Devices',
             'value' => 0,
             'icon' => 'fa-regular fa-hard-drive',
-            'slogan' => '',
         ],
         [
             'title' => 'Total Protocols',
             'value' => 0,
             'icon' => 'fa-solid fa-code-pull-request',
-            'slogan' => '',
         ],
     ];
 @endphp
@@ -42,9 +38,6 @@
                 <mijnui:card.content>
                     <p class="text-sm font-medium text-foreground">{{ $card['title'] }}</p>
                     <h3 class="text-2xl font-semibold text-foreground">{{ $card['value'] }}</h3>
-                    @if (!empty($card['slogan']))
-                        <p class="text-xs text-success">{{ $card['slogan'] }}</p>
-                    @endif
                 </mijnui:card.content>
             </mijnui:card>
         @endforeach

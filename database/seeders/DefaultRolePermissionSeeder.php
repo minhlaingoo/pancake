@@ -22,7 +22,7 @@ class DefaultRolePermissionSeeder extends Seeder
         $featurePermissionFactory = new FeaturePermissionFactory();
 
         //Features
-        $basic_feature = ['user', 'role', 'device', 'protocol', 'system-log', 'process-log', 'process'];
+        $basic_feature = ['user', 'role', 'device', 'protocol', 'preset', 'system-log', 'process-log', 'process'];
         $log_feature = ['activity-log', 'component-log'];
         $device_feature = ['device-config'];
         $protocol_feature = ['protocol-config'];

@@ -12,10 +12,10 @@
                         <i class="fas fa-check-circle text-2xl"></i>
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-lg font-semibold">Success!</h3>
+                        <h3 class="text-lg font-semibold">Success</h3>
                         <p class="mt-1 text-sm">{{ session('message') }}</p>
                     </div>
-                    <button class="text-white opacity-70 hover:opacity-100 focus:outline-none">
+                    <button @click="show = false" aria-label="Dismiss" class="text-white opacity-70 hover:opacity-100 focus:outline-none">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

@@ -64,13 +64,13 @@ class Create extends Component
 
     public function updatedCommands($value, $key)
     {
-        // Format: commands.{index}.{property}
+        // Format: {index}.{property} (Livewire 3 passes relative key)
         $parts = explode('.', $key);
-        if (count($parts) < 3)
+        if (count($parts) < 2)
             return;
 
-        $index = $parts[1];
-        $property = $parts[2];
+        $index = $parts[0];
+        $property = $parts[1];
 
         if ($property === 'controller') {
             $this->commands[$index]['action'] = '';
@@ -100,10 +100,6 @@ class Create extends Component
 
     public function save()
     {
-        \Illuminate\Support\Facades\Log::info('Preset save method called', [
-            'name' => $this->name,
-            'commands_count' => count($this->commands)
-        ]);
         $this->validate([
             'name' => 'required|string|max:255',
             'version' => 'required|string',

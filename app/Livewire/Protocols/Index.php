@@ -54,7 +54,12 @@ class Index extends Component
 
     public function delete($id)
     {
+        if (!checkPermission('protocol', 'delete')) {
+            abort(403);
+        }
+
         Protocol::findOrFail($id)->delete();
+        session()->flash('message', 'Protocol deleted successfully.');
     }
 
     public function render()

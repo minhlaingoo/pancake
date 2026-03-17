@@ -53,8 +53,18 @@ class Edit extends Component
         $this->formData = json_decode($this->protocol->value, true);
     }
 
+    public function rules()
+    {
+        return [
+            'sample_id' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1024',
+        ];
+    }
+
     public function updateProtocol()
     {
+        $this->validate();
+
         $this->protocol->update([
             'sample_id' => $this->sample_id,
             'description' => $this->description,
