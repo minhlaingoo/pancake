@@ -65,7 +65,7 @@
                     Microvalve Configuration
                 </mijnui:card.title>
                 <mijnui:card.description>
-                    Configure the number and range of available microvalves for this device. 
+                    Configure the number and range of available microvalves for this device.
                     <strong>Default:</strong> 6 microvalves starting from index 0 (Microvalves 0-5)
                 </mijnui:card.description>
             </mijnui:card.header>
@@ -73,24 +73,14 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="text-sm font-semibold">Number of Microvalves</label>
-                        <input 
-                            type="number" 
-                            wire:model.live="microvalveCount" 
-                            min="1" 
-                            max="16" 
-                            class="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
-                            placeholder="6">
+                        <input type="number" wire:model.live="microvalveCount" min="1" max="16"
+                            class="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background" placeholder="6">
                         <p class="text-xs text-muted-foreground mt-1">Range: 1-16 microvalves (Default: 6)</p>
                     </div>
                     <div>
                         <label class="text-sm font-semibold">Starting Index</label>
-                        <input 
-                            type="number" 
-                            wire:model.live="microvalveStart" 
-                            min="0" 
-                            max="15"
-                            class="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background"
-                            placeholder="0">
+                        <input type="number" wire:model.live="microvalveStart" min="0" max="15"
+                            class="w-full mt-1 px-3 py-2 border border-input rounded-md bg-background" placeholder="0">
                         <p class="text-xs text-muted-foreground mt-1">Range: 0-15 (Default: 0 for microvalves 0-5)</p>
                     </div>
                 </div>
@@ -114,7 +104,7 @@
                     </div>
                     <p class="text-xs text-muted-foreground mt-1">
                         @if(!empty($availableMicrovalves))
-                            Range: {{ min($availableMicrovalves) }} to {{ max($availableMicrovalves) }} 
+                            Range: {{ min($availableMicrovalves) }} to {{ max($availableMicrovalves) }}
                             ({{ count($availableMicrovalves) }} total)
                         @endif
                     </p>
@@ -178,18 +168,7 @@
                             </mijnui:button>
                         </div>
 
-                        {{-- Stirrer Stop --}}
-                        <div
-                            class="flex items-center justify-between rounded-lg border border-neutral-200 dark:border-neutral-700 p-4">
-                            <div>
-                                <p class="font-medium">Stirrer Emergency Stop</p>
-                                <p class="text-sm text-neutral-500">Immediately stop the stirrer motor.</p>
-                            </div>
-                            <mijnui:button size="sm" color="danger" wire:click="stopStirrer" wire:target="stopStirrer"
-                                has-loading>
-                                Stop Stirrer
-                            </mijnui:button>
-                        </div>
+
                     </div>
                 @endif
             </mijnui:card.content>

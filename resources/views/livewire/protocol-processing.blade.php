@@ -128,8 +128,8 @@
             </mijnui:card.title>
         </mijnui:card.header>
         <mijnui:card.content class="p-5">
-            <div x-data="protocolChart(@js($phases), @js($data))" x-init="init()" class="w-full min-h-64 max-h-96 ">
-                <canvas x-ref="chartCanvas" class="w-full h-full"></canvas>
+            <div x-data="protocolChart(@js($phases), @js($data))" x-init="init()" class="w-full min-h-64 max-h-96">
+                <div x-ref="chartContainer" class="w-full h-full"></div>
             </div>
 
             {{-- Legend --}}
@@ -206,245 +206,161 @@
     </mijnui:card>
 </div>
 
-{{-- Chart.js via @push so it lands in the layout's scripts stack --}}
-@once
-    @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-    @endpush
-@endonce
+@script
+<script>
+    window.protocolChart = function(phases, initialData) {
+        return {
+            data: initialData,
+            svg: null,
 
-@push('scripts')
-    <script>
-        // Phase label plugin — draws phase badges at the bottom of the chart area
-        const phaseLabelPlugin = {
-            id: 'phaseLabelPlugin',
-            afterDatasetsDraw(chart, args, options) {
-                const { ctx, chartArea: { bottom, right }, scales: { x } } = chart;
-                if (!options || !options.phases) return;
+            renderChart() {
+                const container = this.$refs.chartContainer;
+                if (!container || !window.d3) return;
 
-                const phases = options.phases.sort((a, b) => a.timestamp - b.timestamp);
+                // Clear previous
+                d3.select(container).selectAll('*').remove();
+
                 const rootStyle = getComputedStyle(document.documentElement);
+                const dangerColor = rootStyle.getPropertyValue('--danger').trim();
+                const infoColor = rootStyle.getPropertyValue('--info').trim();
                 const successColor = rootStyle.getPropertyValue('--success').trim();
-                const fgColor = rootStyle.getPropertyValue('--foreground').trim();
+                const mutedFgColor = rootStyle.getPropertyValue('--muted-foreground').trim();
+                const borderColor = rootStyle.getPropertyValue('--border').trim();
 
-                ctx.save();
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.font = '11px "Outfit", sans-serif';
+                this._colors = {
+                    danger: dangerColor ? `hsl(${dangerColor})` : 'red',
+                    info: infoColor ? `hsl(${infoColor})` : 'blue',
+                    success: successColor ? `hsl(${successColor})` : 'green',
+                    muted: mutedFgColor ? `hsl(${mutedFgColor})` : '#888',
+                    border: borderColor ? `hsl(${borderColor} / 0.3)` : 'rgba(128,128,128,0.15)',
+                };
 
-                phases.forEach((p, idx) => {
-                    const currentX = x.getPixelForValue(p.timestamp * 1000);
-                    const nextX = idx < phases.length - 1
-                        ? x.getPixelForValue(phases[idx + 1].timestamp * 1000)
-                        : right;
+                const margin = { top: 10, right: 15, bottom: 35, left: 45 };
+                const width = container.clientWidth - margin.left - margin.right;
+                const height = container.clientHeight - margin.top - margin.bottom;
 
-                    const midX = (currentX + nextX) / 2;
-                    const label = `${p.label}${p.loop_index == 1 ? '' : '\n(loop ' + p.loop_index + ')'}`;
-                    const lines = label.split('\n');
+                this.svg = d3.select(container).append('svg')
+                    .attr('width', '100%')
+                    .attr('height', '100%')
+                    .attr('viewBox', `0 0 ${container.clientWidth} ${container.clientHeight}`)
+                    .append('g')
+                    .attr('transform', `translate(${margin.left},${margin.top})`);
 
-                    const paddingX = 6;
-                    const paddingY = 3;
-                    const lineHeight = 14;
-                    const textWidth = Math.max(...lines.map(l => ctx.measureText(l).width));
-                    const rectWidth = textWidth + paddingX * 2;
-                    const rectHeight = lineHeight * lines.length + paddingY * 2;
-                    const rectX = midX - rectWidth / 2;
-                    const rectY = bottom - rectHeight - 5;
-                    const radius = 6;
+                this._dims = { width, height, margin };
+                this.updateChart();
+            },
 
-                    // Background badge
-                    ctx.fillStyle = successColor ? `hsl(${successColor} / 0.15)` : 'rgba(0,128,0,0.15)';
-                    ctx.beginPath();
-                    ctx.moveTo(rectX + radius, rectY);
-                    ctx.lineTo(rectX + rectWidth - radius, rectY);
-                    ctx.quadraticCurveTo(rectX + rectWidth, rectY, rectX + rectWidth, rectY + radius);
-                    ctx.lineTo(rectX + rectWidth, rectY + rectHeight - radius);
-                    ctx.quadraticCurveTo(rectX + rectWidth, rectY + rectHeight, rectX + rectWidth - radius, rectY + rectHeight);
-                    ctx.lineTo(rectX + radius, rectY + rectHeight);
-                    ctx.quadraticCurveTo(rectX, rectY + rectHeight, rectX, rectY + rectHeight - radius);
-                    ctx.lineTo(rectX, rectY + radius);
-                    ctx.quadraticCurveTo(rectX, rectY, rectX + radius, rectY);
-                    ctx.closePath();
-                    ctx.fill();
+            init() {
+                this.renderChart();
 
-                    // Text
-                    ctx.fillStyle = successColor ? `hsl(${successColor})` : 'green';
-                    lines.forEach((line, i) => {
-                        ctx.fillText(line, midX, rectY + paddingY + (i + 0.5) * lineHeight);
-                    });
+                Livewire.on('protocolDataUpdated', (eventData) => {
+                    this.data = Array.isArray(eventData) ? eventData[0] ?? eventData : eventData;
+                    this.updateChart();
                 });
 
-                ctx.restore();
-            }
-        };
-
-        Chart.register(phaseLabelPlugin);
-
-        function protocolChart(phases, initialData) {
-            return {
-                data: initialData,
-                chart: null,
-
-                renderChart() {
-                    const canvas = this.$refs.chartCanvas;
-                    if (!canvas) return;
-
-                    // Destroy any existing chart
-                    if (this.chart instanceof Chart) {
-                        this.chart.destroy();
-                    }
-
-                    // Read theme colors
-                    const rootStyle = getComputedStyle(document.documentElement);
-                    const dangerColor = rootStyle.getPropertyValue('--danger').trim();
-                    const infoColor = rootStyle.getPropertyValue('--info').trim();
-                    const successColor = rootStyle.getPropertyValue('--success').trim();
-                    const fgColor = rootStyle.getPropertyValue('--foreground').trim();
-                    const mutedFgColor = rootStyle.getPropertyValue('--muted-foreground').trim();
-                    const borderColor = rootStyle.getPropertyValue('--border').trim();
-
-                    this.chart = new Chart(canvas.getContext('2d'), {
-                        type: 'line',
-                        data: { datasets: [] },
-                        options: {
-                            animation: false,
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                phaseLabelPlugin: { phases: [] },
-                                legend: { display: false }
-                            },
-                            scales: {
-                                x: {
-                                    type: 'time',
-                                    time: {
-                                        unit: 'second',
-                                        tooltipFormat: 'yyyy-MM-dd HH:mm:ss'
-                                    },
-                                    title: {
-                                        display: true,
-                                        text: 'Time',
-                                        color: mutedFgColor ? `hsl(${mutedFgColor})` : '#888',
-                                        font: { family: '"Outfit", sans-serif' }
-                                    },
-                                    ticks: {
-                                        maxTicksLimit: 20,
-                                        color: mutedFgColor ? `hsl(${mutedFgColor})` : '#888',
-                                        font: { family: '"Outfit", sans-serif' }
-                                    },
-                                    grid: {
-                                        color: borderColor ? `hsl(${borderColor} / 0.3)` : 'rgba(128,128,128,0.15)'
-                                    }
-                                },
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {
-                                        color: mutedFgColor ? `hsl(${mutedFgColor})` : '#888',
-                                        font: { family: '"Outfit", sans-serif' }
-                                    },
-                                    grid: {
-                                        color: borderColor ? `hsl(${borderColor} / 0.3)` : 'rgba(128,128,128,0.15)'
-                                    }
-                                }
-                            }
+                Livewire.hook('commit', ({ component, respond }) => {
+                    respond(() => {
+                        const freshData = component.snapshot?.data?.data;
+                        if (freshData) {
+                            this.data = JSON.parse(JSON.stringify(freshData));
+                            this.updateChart();
                         }
                     });
+                });
+            },
 
-                    // Store theme colors for updateChart
-                    this._colors = {
-                        danger: dangerColor ? `hsl(${dangerColor})` : 'red',
-                        info: infoColor ? `hsl(${infoColor})` : 'blue',
-                        success: successColor ? `hsl(${successColor})` : 'green',
-                    };
+            updateChart() {
+                if (!this.svg) return;
+                const { width, height } = this._dims;
+                const colors = this._colors;
 
-                    this.updateChart();
-                },
+                const measurements = this.data.filter(d => d.type === 'measurement');
+                const phaseStarts = this.data.filter(d => d.type === 'phase_start');
 
-                init() {
-                    this.renderChart();
+                // Clear previous drawing
+                this.svg.selectAll('*').remove();
 
-                    // Livewire v3: listen for the dispatched event
-                    Livewire.on('protocolDataUpdated', (eventData) => {
-                        this.data = Array.isArray(eventData) ? eventData[0] ?? eventData : eventData;
-                        this.updateChart();
-                    });
+                if (!measurements.length) return;
 
-                    // Also update on any Livewire commit (covers poll refreshes)
-                    Livewire.hook('commit', ({ component, respond }) => {
-                        respond(() => {
-                            const freshData = component.snapshot?.data?.data;
-                            if (freshData) {
-                                this.data = JSON.parse(JSON.stringify(freshData));
-                                this.updateChart();
-                            }
-                        });
-                    });
-                },
+                const xExtent = d3.extent(measurements, d => new Date(d.timestamp * 1000));
+                const maxY = Math.max(
+                    d3.max(measurements, d => d.temperature || 0),
+                    d3.max(measurements, d => d.volume || 0),
+                    100
+                );
 
-                updateChart() {
-                    if (!this.chart) return;
+                const x = d3.scaleTime().domain(xExtent).range([0, width]);
+                const y = d3.scaleLinear().domain([0, maxY * 1.1]).range([height, 0]);
 
-                    const measurements = this.data.filter(d => d.type === 'measurement');
-                    const phaseStarts = this.data.filter(d => d.type === 'phase_start');
-                    const colors = this._colors || { danger: 'red', info: 'blue', success: 'green' };
+                // Grid
+                this.svg.append('g')
+                    .attr('transform', `translate(0,${height})`)
+                    .call(d3.axisBottom(x).ticks(10).tickFormat(d3.timeFormat('%H:%M:%S')))
+                    .selectAll('text').style('font', '10px Outfit, sans-serif').style('fill', colors.muted);
 
-                    const maxY = Math.max(
-                        ...measurements.map(m => m.temperature || 0),
-                        ...measurements.map(m => m.volume || 0),
-                        100
-                    );
+                this.svg.append('g')
+                    .call(d3.axisLeft(y))
+                    .selectAll('text').style('font', '10px Outfit, sans-serif').style('fill', colors.muted);
 
-                    const datasets = [
-                        {
-                            label: 'Temperature',
-                            borderColor: colors.danger,
-                            backgroundColor: colors.danger,
-                            fill: false,
-                            tension: 0.3,
-                            pointRadius: 2,
-                            borderWidth: 2,
-                            data: measurements.map(d => ({
-                                x: new Date(d.timestamp * 1000),
-                                y: d.temperature
-                            }))
-                        },
-                        {
-                            label: 'Volume',
-                            borderColor: colors.info,
-                            backgroundColor: colors.info,
-                            fill: false,
-                            tension: 0.3,
-                            pointRadius: 2,
-                            borderWidth: 2,
-                            data: measurements.map(d => ({
-                                x: new Date(d.timestamp * 1000),
-                                y: d.volume
-                            }))
-                        }
-                    ];
+                // X axis label
+                this.svg.append('text')
+                    .attr('x', width / 2).attr('y', height + 30)
+                    .attr('text-anchor', 'middle')
+                    .style('font', '11px Outfit, sans-serif').style('fill', colors.muted)
+                    .text('Time');
 
-                    // Vertical phase markers
-                    phaseStarts.forEach(p => {
-                        datasets.push({
-                            label: `${p.label} ${p.loop_index}`,
-                            borderColor: colors.success,
-                            borderWidth: 1,
-                            borderDash: [4, 4],
-                            pointRadius: 0,
-                            showLine: true,
-                            data: [
-                                { x: new Date(p.timestamp * 1000), y: 0 },
-                                { x: new Date(p.timestamp * 1000), y: maxY }
-                            ]
-                        });
-                    });
+                // Temperature line
+                const tempLine = d3.line()
+                    .x(d => x(new Date(d.timestamp * 1000)))
+                    .y(d => y(d.temperature || 0))
+                    .curve(d3.curveMonotoneX);
 
-                    this.chart.data.datasets = datasets;
-                    this.chart.options.plugins.phaseLabelPlugin.phases = phaseStarts;
-                    this.chart.update('none');
-                }
+                this.svg.append('path')
+                    .datum(measurements)
+                    .attr('fill', 'none')
+                    .attr('stroke', colors.danger)
+                    .attr('stroke-width', 2)
+                    .attr('d', tempLine);
+
+                // Volume line
+                const volLine = d3.line()
+                    .x(d => x(new Date(d.timestamp * 1000)))
+                    .y(d => y(d.volume || 0))
+                    .curve(d3.curveMonotoneX);
+
+                this.svg.append('path')
+                    .datum(measurements)
+                    .attr('fill', 'none')
+                    .attr('stroke', colors.info)
+                    .attr('stroke-width', 2)
+                    .attr('d', volLine);
+
+                // Phase markers (dashed vertical lines + labels)
+                phaseStarts.sort((a, b) => a.timestamp - b.timestamp).forEach((p, idx) => {
+                    const px = x(new Date(p.timestamp * 1000));
+
+                    this.svg.append('line')
+                        .attr('x1', px).attr('x2', px)
+                        .attr('y1', 0).attr('y2', height)
+                        .attr('stroke', colors.success)
+                        .attr('stroke-width', 1)
+                        .attr('stroke-dasharray', '4,4');
+
+                    const nextX = idx < phaseStarts.length - 1
+                        ? x(new Date(phaseStarts[idx + 1].timestamp * 1000))
+                        : width;
+                    const midX = (px + nextX) / 2;
+                    const label = p.loop_index == 1 ? p.label : `${p.label} (loop ${p.loop_index})`;
+
+                    this.svg.append('text')
+                        .attr('x', midX).attr('y', height - 8)
+                        .attr('text-anchor', 'middle')
+                        .style('font', '10px Outfit, sans-serif')
+                        .style('fill', colors.success)
+                        .text(label);
+                });
             }
         }
-    </script>
-@endpush
+    }
+</script>
+@endscript

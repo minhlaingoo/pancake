@@ -4,6 +4,8 @@ namespace App\Livewire\Devices;
 
 use App\Models\Device;
 use Livewire\Component as LivewireComponent;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Detail extends LivewireComponent
@@ -137,9 +139,9 @@ class Detail extends LivewireComponent
     {
         $count = max(1, min(16, (int) $this->microvalveCount)); // Ensure valid range
         $start = max(0, min(15, (int) $this->microvalveStart)); // Ensure valid range
-        
+
         $this->availableMicrovalves = range($start, $start + $count - 1);
-        
+
         // Make sure we don't exceed 15 (max microvalve index)
         $this->availableMicrovalves = array_filter($this->availableMicrovalves, fn($v) => $v <= 15);
     }
@@ -150,23 +152,23 @@ class Detail extends LivewireComponent
         $this->device->setConfig('microvalves.count', (int) $this->microvalveCount);
         $this->device->setConfig('microvalves.start', (int) $this->microvalveStart);
         $this->device->setConfig('microvalves.description', "Microvalves {$this->microvalveStart}-" . ($this->microvalveStart + $this->microvalveCount - 1) . " are present");
-        
+
         $this->device->setConfig('pumps.count', (int) $this->pumpCount);
         $this->device->setConfig('rotary_valves.count', (int) $this->rotaryValveCount);
-        
+
         // Update available microvalves
         $this->updateAvailableMicrovalves();
-        
+
         session()->flash('message', 'Device configuration saved successfully.');
     }
 
     protected function rules()
     {
         $rules = [];
-        
+
         foreach ($this->testCommands as $index => $command) {
             $type = $command['type'] ?? 'string';
-            
+
             switch ($type) {
                 case 'int':
                     $rules["testCommands.{$index}.value"] = 'nullable|integer|min:0';
@@ -188,14 +190,14 @@ class Detail extends LivewireComponent
                     $rules["testCommands.{$index}.value"] = 'nullable|string|max:255';
             }
         }
-        
+
         return $rules;
     }
 
     protected function messages()
     {
         $availableMicrovalves = implode(', ', $this->availableMicrovalves);
-        
+
         return [
             'testCommands.*.value.integer' => 'Value must be a whole number.',
             'testCommands.*.value.numeric' => 'Value must be a number.',
@@ -238,12 +240,12 @@ class Detail extends LivewireComponent
     {
         $controller = $this->testCommands[$index]['controller'] ?? '';
         logger("updateTestCommandType: Controller={$controller}, Action={$action}");
-        
+
         if (isset($this->controllerCommands[$controller][$action])) {
             $newType = $this->controllerCommands[$controller][$action];
             $this->testCommands[$index]['type'] = $newType;
             $this->testCommands[$index]['value'] = '';
-            
+
             logger("✅ Type updated: NewType={$newType}");
             logger("Updated command: " . json_encode($this->testCommands[$index]));
         } else {
@@ -256,12 +258,12 @@ class Detail extends LivewireComponent
     {
         // Log all updates
         logger("updatedTestCommands called: key={$key}, value={$value}");
-        
+
         // Handle different key formats:
         // Format 1: "testCommands.0.action" (expected)
         // Format 2: "0.action" (what we're getting)
         $parts = explode('.', $key);
-        
+
         if (count($parts) === 2) {
             // Format: "0.action" - add the missing prefix
             $index = $parts[0];
@@ -288,16 +290,16 @@ class Detail extends LivewireComponent
             $controller = $this->testCommands[$index]['controller'];
             $action = $value;
             logger("Action change: Controller={$controller}, Action={$action}");
-            
+
             if (isset($this->controllerCommands[$controller][$action])) {
                 $newType = $this->controllerCommands[$controller][$action];
                 $this->testCommands[$index]['type'] = $newType;
                 // Clear the value when action changes to avoid conflicts
                 $this->testCommands[$index]['value'] = '';
-                
+
                 logger("✅ Action updated: NewType={$newType}");
                 logger("Current testCommand after update: " . json_encode($this->testCommands[$index]));
-                
+
                 // Force re-render
                 $this->dispatch('$refresh');
             } else {
@@ -362,6 +364,20 @@ class Detail extends LivewireComponent
         $this->selectedPresetId = null;
     }
 
+    public function emergencyStop()
+    {
+        // Set cache flag to interrupt running RunPresetJob
+        Cache::put("device:{$this->device->id}:emergency_stop", true, now()->addMinutes(5));
+
+        // Delete pending jobs for this device from the queue
+        DB::table('jobs')
+            ->where('payload', 'like', '%"deviceId":{$this->device->id}%')
+            ->orWhere('payload', 'like', '%\\"deviceId\\":{$this->device->id}%')
+            ->delete();
+
+        session()->flash('message', 'Emergency stop activated! All running and queued processes for this device have been stopped.');
+    }
+
     public function mount($id)
     {
         $this->device = Device::query()->with('deviceComponents')->findOrFail($id);
@@ -378,7 +394,7 @@ class Detail extends LivewireComponent
                 'updated_at' => $component->updated_at->format('H:i:s'),
             ];
         }
-        
+
         // Get available microvalves from device configuration
         $this->availableMicrovalves = $this->device->getAvailableMicrovalves();
 

@@ -2,6 +2,9 @@ import './bootstrap';
 import './darkmode';
 import '../../vendor/mijnui/mijnui/dist/mijnui.js';
 import Sortable from 'sortablejs';
+import * as d3 from 'd3';
+
+window.d3 = d3;
 
 if (!localStorage.getItem('mijnuiActiveContent')) {
     localStorage.setItem('mijnuiActiveContent', 'dashboard');

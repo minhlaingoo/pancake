@@ -84,13 +84,29 @@ class ProtocolProcessing extends Component
             }
 
             if (!$this->protocolProcessing) {
+                // Flatten loops into explicit steps so device runs each step once
+                $flattenedPhases = [];
+                foreach ($this->phases as $phase) {
+                    $loopCount = $phase['loop'] ?? 1;
+                    for ($i = 1; $i <= $loopCount; $i++) {
+                        $flattenedPhases[] = [
+                            'id' => ($phase['id'] ?? '') . '_loop_' . $i,
+                            'label' => $phase['label'],
+                            'duration' => $phase['duration'],
+                            'loop_index' => $i,
+                            'total_loops' => $loopCount,
+                        ];
+                    }
+                }
+
                 // Starting
                 $payload = [
                     'type' => 'protocol_start',
                     'protocol_process_id' => $this->protocolProcessUid,
                     'protocol_id' => $this->protocol->sample_id,
-                    'protocol_data' => $this->protocol->value, // Include setup data
-                    'phases' => $this->phases,
+                    'protocol_data' => $this->protocol->value,
+                    'phases' => $flattenedPhases,
+                    'total_steps' => count($flattenedPhases),
                 ];
                 $command = 'start';
             } else {
@@ -106,7 +122,6 @@ class ProtocolProcessing extends Component
             $mqttService->deviceCommand($this->deviceId, 'protocol', $command, json_encode($payload));
 
             $this->protocolProcessing = !$this->protocolProcessing;
-
             $this->dispatch('protocolDataUpdated', $this->data);
         } catch (Exception $e) {
             logger()->error('Protocol toggle failed: ' . $e->getMessage());

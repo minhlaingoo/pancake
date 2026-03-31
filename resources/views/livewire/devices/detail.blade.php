@@ -69,6 +69,30 @@
 
 
     @if($activeTab === 'operations')
+        <!-- Emergency Stop -->
+        <div class="flex items-center justify-between rounded-xl border-2 border-red-500 bg-red-50 dark:bg-red-950/30 p-4 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center animate-pulse">
+                    <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-red-700 dark:text-red-400">Emergency Stop</p>
+                    <p class="text-sm text-red-600/80 dark:text-red-400/60">Immediately stop all running and queued processes for this device.</p>
+                </div>
+            </div>
+            <mijnui:button
+                wire:click="emergencyStop"
+                wire:confirm="Are you sure you want to trigger an emergency stop? This will halt all running and queued processes for this device."
+                color="danger"
+                size="lg"
+                class="px-8 font-bold uppercase tracking-wide"
+                wire:target="emergencyStop"
+                has-loading
+            >
+                <i class="fas fa-stop-circle mr-2"></i> Emergency Stop
+            </mijnui:button>
+        </div>
+
         <div class="grid grid-cols-12 gap-4">
             <!-- Left: Controls -->
             <div class="col-span-12 lg:col-span-8 space-y-4">

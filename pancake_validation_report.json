@@ -1,0 +1,802 @@
+{
+    "validation_suite": "Pancake Project Outgoing Data Validation",
+    "timestamp": "2026-03-18 02:20:02",
+    "summary": {
+        "total_validations": 111,
+        "passed_validations": 103,
+        "failed_validations": 8
+    },
+    "results": [
+        {
+            "category": "Routes",
+            "test": "dashboard",
+            "passed": true,
+            "message": "Dashboard route found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Routes",
+            "test": "devices",
+            "passed": true,
+            "message": "Device management routes found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Routes",
+            "test": "protocols",
+            "passed": true,
+            "message": "Protocol management routes found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Routes",
+            "test": "sensors",
+            "passed": true,
+            "message": "Sensor data routes found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Routes",
+            "test": "users",
+            "passed": true,
+            "message": "User management routes found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Routes",
+            "test": "mqtt",
+            "passed": true,
+            "message": "MQTT communication route found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "API Routes",
+            "test": "\/api\/devices",
+            "passed": false,
+            "message": "Device data API missing",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "API Routes",
+            "test": "\/api\/sensors",
+            "passed": false,
+            "message": "Sensor data API missing",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "API Routes",
+            "test": "\/api\/protocols",
+            "passed": false,
+            "message": "Protocol management API missing",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "API Routes",
+            "test": "\/api\/mqtt",
+            "passed": false,
+            "message": "MQTT communication API missing",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "API Routes",
+            "test": "\/api\/dashboard",
+            "passed": true,
+            "message": "Dashboard data API component found",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "ActivityLog\/Detail - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "ActivityLog\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Auth\/Login - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "BrokerSetting - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Charts\/ChamberBarChart - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Charts\/DailyChamberVolumeUsageChart - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Charts\/DailyProtocolLineChart - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Charts\/SamplePieChart - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Dashboard - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Create - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Detail - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Detail - $this->dispatch",
+            "passed": true,
+            "message": "Event dispatch",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Log - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Log - $this->emit",
+            "passed": true,
+            "message": "Event emission",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Sensors - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Devices\/Setting - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "MqttComponent - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "MqttComponent - $this->emit",
+            "passed": true,
+            "message": "Event emission",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "OnlineChecker - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Phase\/InitializationCycleSetup - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Phase\/StorageCycleSetup - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Phase\/SystemCleaningCycleSetup - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "PhasePage - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Profile\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Profile\/Partial\/PasswordSetting - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:01"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Profile\/Partial\/UserSetting - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "ProtocolProcessing - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "ProtocolProcessing - $this->dispatch",
+            "passed": true,
+            "message": "Event dispatch",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Protocols\/Create - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Protocols\/Edit - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Protocols\/FinalLab - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Protocols\/HistoryList - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Protocols\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Protocols\/Run - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "RolePermissions\/Create - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "RolePermissions\/Edit - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "RolePermissions\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Sensors\/Edit - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Sensors\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Sensors\/Log - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Sensors\/Log - $this->emit",
+            "passed": true,
+            "message": "Event emission",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Sensors\/Log - $this->dispatch",
+            "passed": true,
+            "message": "Event dispatch",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Setting - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Setting - $this->dispatch",
+            "passed": true,
+            "message": "Event dispatch",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Users\/Create - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Users\/Edit - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Livewire Components",
+            "test": "Users\/Index - public function render",
+            "passed": true,
+            "message": "Render method",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "Device Status - devices\/status",
+            "passed": true,
+            "message": "Implementation found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "Device Status - devices\/{id}\/sensors",
+            "passed": true,
+            "message": "Implementation found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "Sensor Data - sensors\/{id}\/readings",
+            "passed": true,
+            "message": "Implementation found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "Sensor Data - sensors\/stream",
+            "passed": true,
+            "message": "Implementation found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "Protocol Data - protocols\/{id}\/status",
+            "passed": true,
+            "message": "Implementation found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "Protocol Data - protocols\/{id}\/export",
+            "passed": true,
+            "message": "Implementation found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "System Data - dashboard\/stats",
+            "passed": false,
+            "message": "Implementation missing",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "System Data - activity-logs\/export",
+            "passed": false,
+            "message": "Implementation missing",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "MQTT Data - mqtt\/publish",
+            "passed": false,
+            "message": "Implementation missing",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "API Endpoints",
+            "test": "MQTT Data - mqtt\/status",
+            "passed": false,
+            "message": "Implementation missing",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "MQTT",
+            "test": "Package Installation",
+            "passed": true,
+            "message": "php-mqtt\/client package found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "MQTT",
+            "test": "Route Configuration",
+            "passed": true,
+            "message": "MQTT routes configured",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "MQTT",
+            "test": "Component Implementation",
+            "passed": true,
+            "message": "MQTT component found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Database Tables",
+            "test": "users",
+            "passed": true,
+            "message": "User management table migration found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Database Tables",
+            "test": "devices",
+            "passed": true,
+            "message": "Device management table migration found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Database Tables",
+            "test": "sensors",
+            "passed": true,
+            "message": "Sensor data table migration found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Database Tables",
+            "test": "protocols",
+            "passed": true,
+            "message": "Protocol management table migration found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Database Tables",
+            "test": "activity",
+            "passed": true,
+            "message": "Activity logs table migration found",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "ActivityLog - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "ActivityLog - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Device - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Device - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Device - hasMany",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Feature - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Feature - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Feature - hasMany",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "MqttMessage - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "MqttMessage - protected $casts",
+            "passed": true,
+            "message": "Attribute casting",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Permission - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Protocol - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Protocol - protected $casts",
+            "passed": true,
+            "message": "Attribute casting",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "ProtocolProcess - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "ProtocolProcess - protected $casts",
+            "passed": true,
+            "message": "Attribute casting",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "ProtocolProcess - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "ProtocolProcess - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Role - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Role - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Role - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Role - hasMany",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "RolePermission - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "RolePermission - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "RolePermission - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Sensor - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Sensor - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Sensor - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "SensorLog - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "SensorLog - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "SensorLog - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "Setting - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "User - protected $fillable",
+            "passed": true,
+            "message": "Fillable attributes",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "User - public function",
+            "passed": true,
+            "message": "Model methods",
+            "timestamp": "2026-03-18 02:20:02"
+        },
+        {
+            "category": "Models",
+            "test": "User - belongsTo",
+            "passed": true,
+            "message": "Relationship methods",
+            "timestamp": "2026-03-18 02:20:02"
+        }
+    ],
+    "project_structure": {
+        "framework": "Laravel",
+        "frontend_stack": "Livewire + MijnUI",
+        "iot_integration": "MQTT Client",
+        "database_type": "MySQL\/SQLite",
+        "key_features": [
+            "Device Management",
+            "Sensor Data Collection",
+            "Protocol Processing",
+            "User Management",
+            "Activity Logging",
+            "MQTT Communication"
+        ]
+    }
+}

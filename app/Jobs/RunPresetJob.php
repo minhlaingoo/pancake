@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class RunPresetJob implements ShouldQueue
@@ -18,16 +19,12 @@ class RunPresetJob implements ShouldQueue
 
     protected $deviceId;
     protected $presetId;
+    protected $startFromIndex;
 
     /**
      * The number of times the job may be attempted.
      */
-    public int $tries = 3;
-
-    /**
-     * The number of seconds to wait before retrying the job.
-     */
-    public int $backoff = 5;
+    public int $tries = 1;  // Don't retry whole job — handle retries per command
 
     /**
      * Create a new job instance.
@@ -35,10 +32,11 @@ class RunPresetJob implements ShouldQueue
      * @param int $deviceId
      * @param int $presetId
      */
-    public function __construct($deviceId, $presetId)
+    public function __construct($deviceId, $presetId, $startFromIndex = 0)
     {
         $this->deviceId = $deviceId;
         $this->presetId = $presetId;
+        $this->startFromIndex = $startFromIndex;
     }
 
     /**
@@ -61,9 +59,16 @@ class RunPresetJob implements ShouldQueue
             return;
         }
 
-        Log::info("RunPresetJob: Starting preset '{$preset->name}' on device '{$device->model}'");
+        Log::info("RunPresetJob: Starting preset '{$preset->name}' on device '{$device->model}' from step {$this->startFromIndex}");
 
         foreach ($preset->commands as $index => $command) {
+            // Check for emergency stop flag before each command
+            if (Cache::get("device:{$this->deviceId}:emergency_stop")) {
+                Log::warning("RunPresetJob: Emergency stop triggered for device {$this->deviceId}. Aborting preset '{$preset->name}' at command #{$index}.");
+                Cache::forget("device:{$this->deviceId}:emergency_stop");
+                return;
+            }
+
             $controller = $command['controller'] ?? '';
             $action = $command['action'] ?? '';
             $value = $command['value'] ?? '';
@@ -99,7 +104,8 @@ class RunPresetJob implements ShouldQueue
                     if ($attempts < $maxAttempts) {
                         sleep(1);
                     } else {
-                        Log::error("RunPresetJob: Command #{$index} ({$controller}/{$action}) failed after {$maxAttempts} attempts. Continuing with next command.");
+                        Log::error("RunPresetJob: Command #{$index} ({$controller}/{$action}) failed after {$maxAttempts} attempts. Stopping preset execution.");
+                        return; // Stop — don't continue with broken state
                     }
                 }
             }
@@ -110,7 +116,7 @@ class RunPresetJob implements ShouldQueue
             }
         }
 
-        Log::info("RunPresetJob: Preset '{$preset->name}' completed on device '{$device->model}'");
+        Log::info("RunPresetJob: Preset '{$preset->name}' completed on device '{$device->model}' ({$totalCommands} commands)");
     }
 
     /**
