@@ -3,6 +3,7 @@
 namespace App\Livewire\Devices;
 
 use App\Models\Device;
+use App\Models\ScheduledPresetCommand;
 use Livewire\Component as LivewireComponent;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -366,13 +367,18 @@ class Detail extends LivewireComponent
 
     public function emergencyStop()
     {
-        // Set cache flag to interrupt running RunPresetJob
+        // Set cache flag so any currently executing job also stops
         Cache::put("device:{$this->device->id}:emergency_stop", true, now()->addMinutes(5));
 
-        // Delete pending jobs for this device from the queue
+        // Cancel all pending scheduled commands for this device
+        ScheduledPresetCommand::where('device_id', $this->device->id)
+            ->where('status', 'pending')
+            ->update(['status' => 'cancelled']);
+
+        // Also clean up any already-dispatched jobs in the queue
+        $deviceId = $this->device->id;
         DB::table('jobs')
-            ->where('payload', 'like', '%"deviceId":{$this->device->id}%')
-            ->orWhere('payload', 'like', '%\\"deviceId\\":{$this->device->id}%')
+            ->where('payload', 'like', "%\"scheduledCommandId\":{$deviceId}%")
             ->delete();
 
         session()->flash('message', 'Emergency stop activated! All running and queued processes for this device have been stopped.');
